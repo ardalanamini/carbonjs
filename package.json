@@ -1,0 +1,59 @@
+{
+  "name": "carbonjs",
+  "version": "0.0.0",
+  "description": "Javascript date library alternative to Moment.js with the same modern API",
+  "author": "Ardalan Amini <ardalanamini22@gmail.com> [https://github.com/ardalanamini]",
+  "homepage": "https://github.com/ardalanamini/carbonjs#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ardalanamini/carbonjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ardalanamini/carbonjs/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "carbonjs",
+    "carbon",
+    "dayjs",
+    "moment",
+    "date",
+    "time",
+    "immutable"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prepublishOnly": "npm test && npm run lint && npm run build",
+    "build": "tsc",
+    "lint": "tslint -p tsconfig.json -c tslint.json --exclude '**/*.d.ts'",
+    "test": "jest --silent",
+    "coverage": "npm test -- --coverage",
+    "codecov": "npm run coverage -- --runInBand && codecov"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.1",
+    "@types/mockdate": "^2.0.0",
+    "@types/moment": "^2.13.0",
+    "@types/node": "^10.9.0",
+    "codecov": "^3.0.4",
+    "jest": "^23.5.0",
+    "mockdate": "^2.0.2",
+    "moment": "^2.22.2",
+    "ts-jest": "^23.1.4",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.1"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testMatch": [
+      "<rootDir>/test/**/*\\.ts"
+    ]
+  }
+}

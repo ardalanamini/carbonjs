@@ -1,0 +1,18 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true,
+    "strict": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "**/test.ts",
+    "**/*.test.ts"
+  ]
+}
