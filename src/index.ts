@@ -72,8 +72,8 @@ class Carbon {
 
   protected _year!: number;
   protected _month!: number;
-  protected _day!: number;
   protected _weekday!: number;
+  protected _day!: number;
   protected _hours!: number;
   protected _minutes!: number;
   protected _seconds!: number;
@@ -103,13 +103,13 @@ class Carbon {
   static parse = (date?: Carbon.CarbonInput) => new Carbon(date);
 
   constructor(date?: Carbon.CarbonInput) {
-    date = this._parse(date);
+    date = this._parseDate(date);
 
     this._date = date;
     this._year = date.getFullYear();
     this._month = date.getMonth();
-    this._day = date.getDate();
     this._weekday = date.getDay();
+    this._day = date.getDate();
     this._hours = date.getHours();
     this._minutes = date.getMinutes();
     this._seconds = date.getSeconds();
@@ -120,7 +120,7 @@ class Carbon {
     return LOCALES[this._localeName];
   }
 
-  private _parse(date?: Carbon.CarbonInput) {
+  private _parseDate(date?: Carbon.CarbonInput) {
     if (Carbon.isCarbon(date)) {
       this._localeName = date._localeName;
 
@@ -236,12 +236,12 @@ class Carbon {
     return this._month;
   }
 
-  day() {
-    return this._day;
-  }
-
   weekday() {
     return this._weekday;
+  }
+
+  day() {
+    return this._day;
   }
 
   hour() {
@@ -284,7 +284,7 @@ class Carbon {
     return Math.floor(this.valueOf() / 1000);
   }
 
-  set(unit: Carbon.Unit | "date", value: number) {
+  set(unit: Carbon.Unit | "weekday", value: number) {
     const date = utils.cloneDate(this._date);
 
     switch (unit) {
@@ -294,10 +294,10 @@ class Carbon {
       case CONSTANTS.MONTH:
         date.setMonth(value);
         break;
-      case CONSTANTS.DATE:
+      case CONSTANTS.DAY:
         date.setDate(value);
         break;
-      case CONSTANTS.DAY:
+      case CONSTANTS.WEEKDAY:
         date.setDate(this._day + (value - this._weekday));
         break;
       case CONSTANTS.HOUR:
@@ -323,10 +323,10 @@ class Carbon {
     value = +value;
     unit = utils.prettyUnit(unit);
 
-    const instanceFactory = (unit: Carbon.Unit | "date", num: number) => {
-      const date = this.set(CONSTANTS.DATE, 1).set(unit, (value as number) + num);
+    const instanceFactory = (unit: Carbon.Unit | "weekday", num: number) => {
+      const date = this.set(CONSTANTS.DAY, 1).set(unit, (value as number) + num);
 
-      return date.set(CONSTANTS.DATE, Math.min(this._day, date.daysInMonth()));
+      return date.set(CONSTANTS.DAY, Math.min(this._day, date.daysInMonth()));
     };
 
     if (unit === CONSTANTS.YEAR) return instanceFactory(unit, this._year);
@@ -338,10 +338,10 @@ class Carbon {
       case CONSTANTS.WEEK:
         value *= 7;
         base = this._day;
-        unit = "date" as any;
+        unit = "day" as any;
         break;
       case CONSTANTS.DAY:
-        unit = "date" as any;
+        unit = "day" as any;
         base = this._day;
         break;
       case CONSTANTS.HOUR:

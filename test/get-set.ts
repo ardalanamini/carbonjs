@@ -40,11 +40,11 @@ describe("Testing get/set", () => {
   });
 
   test("Set Day", () => {
-    expect(Carbon.parse().set("date", 30).valueOf()).toBe(moment().set("date", 30).valueOf());
+    expect(Carbon.parse().set("day", 30).valueOf()).toBe(moment().set("date", 30).valueOf());
   });
 
   test("Set Day of Week", () => {
-    expect(Carbon.parse().set("day", 0).valueOf()).toBe(moment().set("day", 0).valueOf());
+    expect(Carbon.parse().set("weekday", 0).valueOf()).toBe(moment().set("day", 0).valueOf());
   });
 
   test("Set Month", () => {

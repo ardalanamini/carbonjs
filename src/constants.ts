@@ -19,7 +19,7 @@ export const WEEK = "week";
 export const MONTH = "month";
 export const QUARTER = "quarter";
 export const YEAR = "year";
-export const DATE = "date";
+export const WEEKDAY = "weekday";
 
 export const FORMAT_DEFAULT = "YYYY-MM-DDTHH:mm:ssZ";
 
