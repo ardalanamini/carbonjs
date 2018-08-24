@@ -64,7 +64,7 @@ interface Carbon {
 }
 
 class Carbon {
-  protected static _en = LOCALES[locale];
+  protected static _en = LOCALES.en;
 
   protected _localeName: string = locale;
 
