@@ -48,6 +48,12 @@ export const monthDiff = (a: Carbon, b: Carbon) => {
   );
 };
 
+export const getShort = (arr: any, index: number, full: any[], length: number) =>
+  (arr && arr[index]) || full[index].substr(0, length);
+
+export const findShortIndex = (arr: any, short: string, full: any[]) =>
+  (arr && arr.indexOf(short)) || full.findIndex((f) => f.indexOf(short) === 0);
+
 export const absFloor = (num: number) => num < 0 ? (Math.ceil(num) || 0) : Math.floor(num);
 
 export const cloneDate = (date: Date) => new Date(date);

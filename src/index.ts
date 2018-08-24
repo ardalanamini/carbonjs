@@ -18,6 +18,12 @@ module Carbon {
 
   export type ManipulationUnit = Carbon.CountableUnit | "y" | "M" | "w" | "d" | "h" | "m" | "s" | "ms";
 
+  export type DateInputArray = [number, number, number, number, number, number, number];
+
+  export interface Tokens {
+    [token: string]: string;
+  }
+
   export type Plugin<T = any> = (Base: typeof Carbon, options?: T) => void;
 
   export interface Locale {
@@ -100,65 +106,143 @@ class Carbon {
     return l;
   }
 
-  static parse = (date?: Carbon.CarbonInput) => new Carbon(date);
+  static parse = (input?: Carbon.CarbonInput, format?: string) => new Carbon(input, format);
 
-  constructor(date?: Carbon.CarbonInput) {
-    date = this._parseDate(date);
+  constructor(input?: Carbon.CarbonInput, format?: string) {
+    input = this._parseDate(input, format);
 
-    this._date = date;
-    this._year = date.getFullYear();
-    this._month = date.getMonth();
-    this._weekday = date.getDay();
-    this._day = date.getDate();
-    this._hours = date.getHours();
-    this._minutes = date.getMinutes();
-    this._seconds = date.getSeconds();
-    this._milliseconds = date.getMilliseconds();
+    this._date = input;
+    this._year = input.getFullYear();
+    this._month = input.getMonth();
+    this._weekday = input.getDay();
+    this._day = input.getDate();
+    this._hours = input.getHours();
+    this._minutes = input.getMinutes();
+    this._seconds = input.getSeconds();
+    this._milliseconds = input.getMilliseconds();
   }
 
   protected get _locale() {
     return LOCALES[this._localeName];
   }
 
-  private _parseDate(date?: Carbon.CarbonInput) {
-    if (Carbon.isCarbon(date)) {
-      this._localeName = date._localeName;
+  protected _parseToken(token: string, value: string, dateArray: Carbon.DateInputArray, tokens: Carbon.Tokens) {
+    const locale = this._locale;
 
-      return date.toDate();
+    switch (token) {
+      case "YY":
+        dateArray[0] = +(`${new Date().getFullYear()}`.slice(0, 2) + value);
+        break;
+      case "YYYY":
+        dateArray[0] = +value;
+        break;
+      case "M":
+      case "MM":
+        dateArray[1] = (+value) - 1;
+        break;
+      case "MMM":
+        dateArray[1] = utils.findShortIndex(locale.monthsShort, value, locale.months);
+        break;
+      case "MMMM":
+        dateArray[1] = locale.months.indexOf(value);
+        break;
+      case "D":
+      case "DD":
+        dateArray[2] = +value;
+        break;
+      case "H":
+      case "HH":
+        dateArray[3] = +value;
+        break;
+      case "h":
+      case "hh":
+        const meridiem = (tokens.A || tokens.a || "am").toLowerCase();
+        dateArray[3] = meridiem === "am" ? (+value) : (+value) + 12;
+        break;
+      case "m":
+      case "mm":
+        dateArray[4] = +value;
+        break;
+      case "s":
+      case "ss":
+        dateArray[5] = +value;
+        break;
+      case "S":
+      case "SS":
+      case "SSS":
+        dateArray[6] = +value;
+        break;
+    }
+  }
+
+  private _parseDate(input?: Carbon.CarbonInput, format?: string) {
+    if (Carbon.isCarbon(input)) {
+      this._localeName = input._localeName;
+
+      return input.toDate();
     }
 
     // Treat null as an invalid date
-    if (date === null) return new Date(NaN);
+    if (input === null) return new Date(NaN);
 
-    if (date === undefined) return new Date();
+    if (input === undefined) return new Date();
 
-    if ((typeof date === "string")
-      && (/.*[^Z]$/i.test(date)) // looking for a better way
-    ) {
-      const reg = date.match(CONSTANTS.REGEX_PARSE);
+    if (typeof input === "string") {
+      if (format) {
+        const dateArray: Carbon.DateInputArray = [0, 0, 0, 0, 0, 0, 0];
 
-      if (reg)
-        // 2018-08-08 or 20180808
-        return new Date(reg[1] as any, (reg[2] as any) - 1, reg[3] || 1 as any,
-          reg[5] || 0 as any, reg[6] || 0 as any, reg[7] || 0 as any, reg[8] || 0 as any
-        );
+        const tokens: Carbon.Tokens = {};
+
+        let match;
+        // tslint:disable-next-line:no-conditional-assignment
+        while (match = CONSTANTS.PARSE_REGEX.exec(format)) {
+          const token = match[0];
+
+          if (/^\[.*\]$/.test(token)) {
+            input = input.slice(token.length - 1).replace(/^\W+/, "");
+
+            continue;
+          }
+
+          const value: string = (/\w+/.exec(input) as any)[0];
+
+          tokens[token] = value;
+
+          input = input.slice(value.length).replace(/^\W+/, "");
+        }
+
+        Object.keys(tokens)
+          .forEach((token) => this._parseToken(token, tokens[token], dateArray, tokens));
+
+        return new Date(...dateArray);
+      }
+
+      // looking for a better way
+      if (/.*[^Z]$/i.test(input)) {
+        const reg = input.match(CONSTANTS.REGEX_PARSE);
+
+        if (reg)
+          // 2018-08-08 or 20180808
+          return new Date(reg[1] as any, (reg[2] as any) - 1, reg[3] || 1 as any,
+            reg[5] || 0 as any, reg[6] || 0 as any, reg[7] || 0 as any, reg[8] || 0 as any
+          );
+
+      }
     }
 
-    return new Date(date);
+    return new Date(input);
   }
 
-  private _clone(date?: Carbon.CarbonInput) {
-    const cloned = Carbon.parse(date);
-
-    if (Carbon.isCarbon(date)) return cloned;
+  private _clone(input?: Carbon.CarbonInput) {
+    const cloned = Carbon.parse(input);
 
     cloned._localeName = this._localeName;
 
     return cloned;
   }
 
-  private _compare(date?: Carbon.CarbonInput) {
-    return this.valueOf() - new Carbon(date).valueOf();
+  private _compare(input?: Carbon.CarbonInput) {
+    return this.valueOf() - new Carbon(input).valueOf();
   }
 
   private _edge(unit: Carbon.CountableUnit, start: boolean = true) {
@@ -216,16 +300,16 @@ class Carbon {
     return this._date.toString() !== "Invalid Date";
   }
 
-  isSame(date?: Carbon.CarbonInput) {
-    return this._compare(date) === 0;
+  isSame(input?: Carbon.CarbonInput) {
+    return this._compare(input) === 0;
   }
 
-  isBefore(date?: Carbon.CarbonInput) {
-    return this._compare(date) < 0;
+  isBefore(input?: Carbon.CarbonInput) {
+    return this._compare(input) < 0;
   }
 
-  isAfter(date?: Carbon.CarbonInput) {
-    return this._compare(date) > 0;
+  isAfter(input?: Carbon.CarbonInput) {
+    return this._compare(input) > 0;
   }
 
   year() {
@@ -369,8 +453,6 @@ class Carbon {
     const zoneStr = utils.padZoneStr(this._date.getTimezoneOffset());
     const locale = this._locale;
     const { weekdays, months } = locale;
-    const getShort = (arr: any, index: number, full: any[], length: number) =>
-      (arr && arr[index]) || full[index].substr(0, length);
 
     return format.replace(CONSTANTS.REGEX_FORMAT, (match) => {
       if (match.indexOf("[") > -1) return match.replace(/\[|\]/g, "");
@@ -385,7 +467,7 @@ class Carbon {
         case "MM":
           return utils.padStart(this._month + 1, 2, "0");
         case "MMM":
-          return getShort(locale.monthsShort, this._month, months, 3);
+          return utils.getShort(locale.monthsShort, this._month, months, 3);
         case "MMMM":
           return months[this._month];
         case "D":
@@ -395,9 +477,9 @@ class Carbon {
         case "d":
           return `${this._weekday}`;
         case "dd":
-          return getShort(locale.weekdaysMin, this._weekday, weekdays, 2);
+          return utils.getShort(locale.weekdaysMin, this._weekday, weekdays, 2);
         case "ddd":
-          return getShort(locale.weekdaysShort, this._weekday, weekdays, 3);
+          return utils.getShort(locale.weekdaysShort, this._weekday, weekdays, 3);
         case "dddd":
           return weekdays[this._weekday];
         case "H":

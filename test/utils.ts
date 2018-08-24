@@ -1,4 +1,4 @@
-import { prettyUnit, padZoneStr, padStart } from "../src/utils";
+import { prettyUnit, padZoneStr, padStart, findShortIndex } from "../src/utils";
 
 describe("Testing utils", () => {
   test("PrettyUnit", () => {
@@ -20,5 +20,9 @@ describe("Testing utils", () => {
   test("PadStart", () => {
     expect(padStart(1, 2, "0")).toBe("01");
     expect(padStart(0, 2, "0")).toBe("00");
+  });
+
+  test("FindShortIndex", () => {
+    expect(findShortIndex(["Jul", "Aug", "Sep"], "Aug", ["July", "August", "September"])).toBe(1);
   });
 });

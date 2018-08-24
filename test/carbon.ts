@@ -93,4 +93,44 @@ describe("Testing create new instance", () => {
 
     expect(newBase.toString()).toBe(another.toString());
   });
+
+  describe("Parse with format", () => {
+    const outputFormat = "YYYY-MM-DD HH:mm:ss.SSS";
+
+    [
+      {
+        input: "2018/24/08 20:36:10,064",
+        format: "YYYY/DD/MM HH:mm:ss,SSS",
+      },
+      {
+        input: "18-8/24 8:51-46#164",
+        format: "YY-M/D H:m-s#S",
+      },
+      {
+        input: "2018-08-24 8 pm",
+        format: "YYYY-MM-DD h A",
+      },
+      {
+        input: "2018-08-24 8 am",
+        format: "YYYY-MM-DD h a",
+      },
+      {
+        input: "2018-08-24 8",
+        format: "YYYY-MM-DD h",
+      },
+      {
+        input: "2018-Aug-24",
+        format: "YYYY-MMM-DD",
+      },
+      {
+        input: "2018-August-24 hello 12",
+        format: "YYYY-MMMM-DD [hello] HH",
+      },
+    ].forEach(({ input, format }) => {
+      test(`(${input}) -> (${format})`, () => {
+        expect(Carbon.parse(input, format).format(outputFormat))
+          .toBe(moment(input, format).format(outputFormat));
+      });
+    });
+  });
 });
