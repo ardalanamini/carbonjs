@@ -1,6 +1,6 @@
 import * as MockDate from "mockdate";
 import * as Carbon from "../../src";
-import * as isBetween from "../../src/plugins/isBetween";
+import * as isBetween from "../../src/plugins/is-between";
 
 Carbon.extend(isBetween);
 

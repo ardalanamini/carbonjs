@@ -1,6 +1,6 @@
 import * as MockDate from "mockdate";
 import * as Carbon from "../../src";
-import * as leapYear from "../../src/plugins/leapYear";
+import * as leapYear from "../../src/plugins/leap-year";
 
 Carbon.extend(leapYear);
 

@@ -1,7 +1,7 @@
 import * as MockDate from "mockdate";
 import * as moment from "moment";
 import * as Carbon from "../../src";
-import * as advancedFormat from "../../src/plugins/advancedFormat";
+import * as advancedFormat from "../../src/plugins/advanced-format";
 
 Carbon.extend(advancedFormat);
 

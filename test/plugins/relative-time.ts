@@ -1,7 +1,7 @@
 import * as MockDate from "mockdate";
 import * as moment from "moment";
 import * as Carbon from "../../src";
-import * as relativeTime from "../../src/plugins/relativeTime";
+import * as relativeTime from "../../src/plugins/relative-time";
 
 Carbon.extend(relativeTime);
 
