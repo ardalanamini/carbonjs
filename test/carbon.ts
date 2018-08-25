@@ -1,6 +1,7 @@
 import * as moment from "moment";
 import * as MockDate from "mockdate";
 import * as Carbon from "../src";
+import "../src/locales/zh-cn";
 
 beforeEach(() => MockDate.set(new Date()));
 
@@ -131,6 +132,14 @@ describe("Testing create new instance", () => {
         expect(Carbon.parse(input, format).format(outputFormat))
           .toBe(moment(input, format).format(outputFormat));
       });
+    });
+
+    const input = "2018-8月-24";
+    const format = "YYYY-MMM-DD";
+
+    test(`(${input}) -> (${format})`, () => {
+      expect(Carbon.parse(input, format, "zh-cn").locale("en").format("YYYY-MM-DD"))
+        .toBe("2018-08-24");
     });
   });
 });

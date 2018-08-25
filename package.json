@@ -35,7 +35,7 @@
     "@types/jest": "^23.3.1",
     "@types/mockdate": "^2.0.0",
     "@types/moment": "^2.13.0",
-    "@types/node": "^10.9.1",
+    "@types/node": "^10.9.2",
     "codecov": "^3.0.4",
     "jest": "^23.5.0",
     "mockdate": "^2.0.2",

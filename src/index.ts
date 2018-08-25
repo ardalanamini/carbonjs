@@ -2,7 +2,7 @@ import * as CONSTANTS from "./constants";
 import * as utils from "./utils";
 import * as en from "./locales/en";
 
-let locale = "en";
+let localeName = "en";
 const LOCALES: { [locale: string]: Carbon.Locale } = {
   en,
 };
@@ -72,7 +72,7 @@ interface Carbon {
 class Carbon {
   protected static _en = LOCALES.en;
 
-  protected _localeName: string = locale;
+  protected _localeName: string = localeName;
 
   protected _date!: Date;
 
@@ -90,7 +90,7 @@ class Carbon {
   static extend = <T = any>(plugin: Carbon.Plugin<T>, options?: T) => plugin(Carbon, options);
 
   static locale = (preset: string | Carbon.Locale, global = true) => {
-    let l = locale;
+    let l = localeName;
 
     if (typeof preset === "string") {
       if (LOCALES[preset]) l = preset;
@@ -101,15 +101,16 @@ class Carbon {
       l = name;
     }
 
-    if (global) locale = l;
+    if (global) localeName = l;
 
     return l;
   }
 
-  static parse = (input?: Carbon.CarbonInput, format?: string) => new Carbon(input, format);
+  static parse = (input?: Carbon.CarbonInput, format?: string, locale?: string | Carbon.Locale) =>
+    new Carbon(input, format, locale)
 
-  constructor(input?: Carbon.CarbonInput, format?: string) {
-    input = this._parseDate(input, format);
+  constructor(input?: Carbon.CarbonInput, format?: string, locale?: string | Carbon.Locale) {
+    input = this._parseDate(input, format, locale);
 
     this._date = input;
     this._year = input.getFullYear();
@@ -175,7 +176,7 @@ class Carbon {
     }
   }
 
-  private _parseDate(input?: Carbon.CarbonInput, format?: string) {
+  private _parseDate(input?: Carbon.CarbonInput, format?: string, locale?: string | Carbon.Locale) {
     if (Carbon.isCarbon(input)) {
       this._localeName = input._localeName;
 
@@ -189,6 +190,8 @@ class Carbon {
 
     if (typeof input === "string") {
       if (format) {
+        if (locale) this._localeName = Carbon.locale(locale, false);
+
         const dateArray: Carbon.DateInputArray = [0, 0, 0, 0, 0, 0, 0];
 
         const tokens: Carbon.Tokens = {};
@@ -199,16 +202,16 @@ class Carbon {
           const token = match[0];
 
           if (/^\[.*\]$/.test(token)) {
-            input = input.slice(token.length - 1).replace(/^\W+/, "");
+            input = input.slice(token.length - 1).replace(/^[,<>./?'";:\\|\[\]{}=+\-_()*&^%$#@!`~ ]+/, "");
 
             continue;
           }
 
-          const value: string = (/\w+/.exec(input) as any)[0];
+          const value: string = (/[^,<>./?'";:\\|\[\]{}=+\-_()*&^%$#@!`~ ]+/.exec(input) as any)[0];
 
           tokens[token] = value;
 
-          input = input.slice(value.length).replace(/^\W+/, "");
+          input = input.slice(value.length).replace(/^[,<>./?'";:\\|\[\]{}=+\-_()*&^%$#@!`~ ]+/, "");
         }
 
         Object.keys(tokens)
