@@ -4,7 +4,9 @@ module leapYear { }
 
 const leapYear: Carbon.Plugin = (Base) => {
   Base.prototype.isLeapYear = function(this: Carbon) {
-    return ((this._year % 4 === 0) && (this._year % 100 !== 0)) || (this._year % 400 === 0);
+    const year = this._year;
+
+    return (year % 100 === 0) ? (year % 400 === 0) : (year % 4 === 0);
   };
 };
 

@@ -89,21 +89,21 @@ class Carbon {
 
   static extend = <T = any>(plugin: Carbon.Plugin<T>, options?: T) => plugin(Carbon, options);
 
-  static locale = (preset: string | Carbon.Locale, global = true) => {
-    let l = localeName;
+  static locale = (locale: string | Carbon.Locale, global = true) => {
+    let _locale = localeName;
 
-    if (typeof preset === "string") {
-      if (LOCALES[preset]) l = preset;
+    if (typeof locale === "string") {
+      if (LOCALES[locale]) _locale = locale;
     } else {
-      const name = preset.name;
+      const name = locale.name;
 
-      LOCALES[name] = preset;
-      l = name;
+      LOCALES[name] = locale;
+      _locale = name;
     }
 
-    if (global) localeName = l;
+    if (global) localeName = _locale;
 
-    return l;
+    return _locale;
   }
 
   static parse = (input?: Carbon.CarbonInput, format?: string, locale?: string | Carbon.Locale) =>
@@ -127,12 +127,74 @@ class Carbon {
     return LOCALES[this._localeName];
   }
 
+  protected _parseDate(input?: Carbon.CarbonInput, format?: string, locale?: string | Carbon.Locale) {
+    if (Carbon.isCarbon(input)) {
+      this._localeName = input._localeName;
+
+      return input.toDate();
+    }
+
+    // Treat null as an invalid date
+    if (input === null) return utils.newDate(NaN);
+
+    if (input === undefined) return utils.newDate();
+
+    if (typeof input === "string") {
+      if (format) {
+        if (locale) this._localeName = Carbon.locale(locale, false);
+
+        const dateArray: Carbon.DateInputArray = [0, 0, 0, 0, 0, 0, 0];
+
+        const tokens: Carbon.Tokens = {};
+
+        const nonWordRegex = /^[,<>./?'";:\\|\[\]{}=+\-_()*&^%$#@!`~ ]+/;
+
+        let match;
+        // tslint:disable-next-line:no-conditional-assignment
+        while (match = CONSTANTS.PARSE_REGEX.exec(format)) {
+          const token = match[0];
+
+          if (/^\[.*\]$/.test(token)) {
+            input = input.slice(token.length - 1).replace(nonWordRegex, "");
+
+            continue;
+          }
+
+          const value: string = (/[^,<>./?'";:\\|\[\]{}=+\-_()*&^%$#@!`~ ]+/.exec(input) as any)[0];
+
+          tokens[token] = value;
+
+          input = input.slice(value.length).replace(nonWordRegex, "");
+        }
+
+        Object.keys(tokens)
+          .forEach((token) => this._parseToken(token, tokens[token], dateArray, tokens));
+
+        return utils.newDate(...dateArray);
+      }
+
+      // looking for a better way
+      if (/.*[^Z]$/i.test(input)) {
+        const reg = input.match(CONSTANTS.REGEX_PARSE);
+
+        if (reg)
+          // 2018-08-08 or 20180808
+          return utils.newDate(reg[1] as any, (reg[2] as any) - 1, reg[3] || 1 as any,
+            reg[5] || 0 as any, reg[6] || 0 as any, reg[7] || 0 as any, reg[8] || 0 as any
+          );
+
+      }
+    }
+
+    return utils.newDate(input);
+  }
+
   protected _parseToken(token: string, value: string, dateArray: Carbon.DateInputArray, tokens: Carbon.Tokens) {
     const locale = this._locale;
 
     switch (token) {
       case "YY":
-        dateArray[0] = +(`${new Date().getFullYear()}`.slice(0, 2) + value);
+        dateArray[0] = +(`${utils.newDate().getFullYear()}`.slice(0, 2) + value);
         break;
       case "YYYY":
         dateArray[0] = +value;
@@ -176,68 +238,8 @@ class Carbon {
     }
   }
 
-  private _parseDate(input?: Carbon.CarbonInput, format?: string, locale?: string | Carbon.Locale) {
-    if (Carbon.isCarbon(input)) {
-      this._localeName = input._localeName;
-
-      return input.toDate();
-    }
-
-    // Treat null as an invalid date
-    if (input === null) return new Date(NaN);
-
-    if (input === undefined) return new Date();
-
-    if (typeof input === "string") {
-      if (format) {
-        if (locale) this._localeName = Carbon.locale(locale, false);
-
-        const dateArray: Carbon.DateInputArray = [0, 0, 0, 0, 0, 0, 0];
-
-        const tokens: Carbon.Tokens = {};
-
-        let match;
-        // tslint:disable-next-line:no-conditional-assignment
-        while (match = CONSTANTS.PARSE_REGEX.exec(format)) {
-          const token = match[0];
-
-          if (/^\[.*\]$/.test(token)) {
-            input = input.slice(token.length - 1).replace(/^[,<>./?'";:\\|\[\]{}=+\-_()*&^%$#@!`~ ]+/, "");
-
-            continue;
-          }
-
-          const value: string = (/[^,<>./?'";:\\|\[\]{}=+\-_()*&^%$#@!`~ ]+/.exec(input) as any)[0];
-
-          tokens[token] = value;
-
-          input = input.slice(value.length).replace(/^[,<>./?'";:\\|\[\]{}=+\-_()*&^%$#@!`~ ]+/, "");
-        }
-
-        Object.keys(tokens)
-          .forEach((token) => this._parseToken(token, tokens[token], dateArray, tokens));
-
-        return new Date(...dateArray);
-      }
-
-      // looking for a better way
-      if (/.*[^Z]$/i.test(input)) {
-        const reg = input.match(CONSTANTS.REGEX_PARSE);
-
-        if (reg)
-          // 2018-08-08 or 20180808
-          return new Date(reg[1] as any, (reg[2] as any) - 1, reg[3] || 1 as any,
-            reg[5] || 0 as any, reg[6] || 0 as any, reg[7] || 0 as any, reg[8] || 0 as any
-          );
-
-      }
-    }
-
-    return new Date(input);
-  }
-
   private _clone(input?: Carbon.CarbonInput) {
-    const cloned = Carbon.parse(input);
+    const cloned = new Carbon(input);
 
     cloned._localeName = this._localeName;
 
@@ -252,7 +254,7 @@ class Carbon {
     unit = utils.prettyUnit(unit);
 
     const instanceFactory = (day: number, month: number): Carbon => {
-      const ins = this._clone(new Date(this._year, month, day));
+      const ins = this._clone(utils.newDate(this._year, month, day));
 
       return start ? ins : ins.endOf(CONSTANTS.DAY);
     };
@@ -372,7 +374,7 @@ class Carbon {
   }
 
   set(unit: Carbon.Unit | "weekday", value: number) {
-    const date = utils.cloneDate(this._date);
+    const date = utils.newDate(this._date);
 
     switch (unit) {
       case CONSTANTS.YEAR:
@@ -561,7 +563,7 @@ class Carbon {
   }
 
   toDate() {
-    return new Date(this._date);
+    return utils.newDate(this._date);
   }
 
   toArray() {

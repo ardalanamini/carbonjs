@@ -56,4 +56,5 @@ export const findShortIndex = (arr: any, short: string, full: any[]) =>
 
 export const absFloor = (num: number) => num < 0 ? (Math.ceil(num) || 0) : Math.floor(num);
 
-export const cloneDate = (date: Date) => new Date(date);
+// better minifying
+export const newDate = (...args: any[]): Date => new (Date as any)(...args);

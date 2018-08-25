@@ -4,9 +4,10 @@ import * as utils from "../utils";
 
 module leapYear { }
 
+const s = ["th", "st", "nd", "rd"];
+
 const leapYear: Carbon.Plugin = (Base) => {
   (Base as any)._en.ordinal = (n: number) => {
-    const s = ["th", "st", "nd", "rd"];
     const v = n % 100;
 
     return `[${n}${(s[(v - 20) % 10] || s[v] || s[0])}]`;
@@ -33,7 +34,7 @@ const leapYear: Carbon.Plugin = (Base) => {
       }
     });
 
-    return format.bind(this)(result);
+    return format.apply(this, [result]);
   };
 };
 

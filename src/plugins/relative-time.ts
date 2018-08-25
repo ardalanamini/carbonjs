@@ -3,6 +3,21 @@ import * as Carbon from "../index";
 
 module relativeTime { }
 
+const T = [
+  { l: "s", r: 44, d: CONSTANTS.SECOND },
+  { l: "m", r: 89 },
+  { l: "mm", r: 44, d: CONSTANTS.MINUTE },
+  { l: "h", r: 89 },
+  { l: "hh", r: 21, d: CONSTANTS.HOUR },
+  { l: "d", r: 35 },
+  { l: "dd", r: 25, d: CONSTANTS.DAY },
+  { l: "M", r: 45 },
+  { l: "MM", r: 10, d: CONSTANTS.MONTH },
+  { l: "y", r: 17 },
+  { l: "yy", d: CONSTANTS.YEAR },
+];
+const Tl = T.length;
+
 const relativeTime: Carbon.Plugin = (Base) => {
   (Base as any)._en.relativeTime = {
     future: "in %s",
@@ -24,20 +39,6 @@ const relativeTime: Carbon.Plugin = (Base) => {
 
   const fromTo = (input: Carbon.CarbonInput, withoutSuffix = false, instance: Carbon, isFrom = false) => {
     const loc = (instance as any)._locale.relativeTime;
-    const T = [
-      { l: "s", r: 44, d: CONSTANTS.SECOND },
-      { l: "m", r: 89 },
-      { l: "mm", r: 44, d: CONSTANTS.MINUTE },
-      { l: "h", r: 89 },
-      { l: "hh", r: 21, d: CONSTANTS.HOUR },
-      { l: "d", r: 35 },
-      { l: "dd", r: 25, d: CONSTANTS.DAY },
-      { l: "M", r: 45 },
-      { l: "MM", r: 10, d: CONSTANTS.MONTH },
-      { l: "y", r: 17 },
-      { l: "yy", d: CONSTANTS.YEAR },
-    ];
-    const Tl = T.length;
     let result!: number;
     let out;
 
