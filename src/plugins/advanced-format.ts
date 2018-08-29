@@ -14,19 +14,18 @@ const leapYear: Carbon.Plugin = (Base) => {
   };
 
   const proto = Base.prototype;
-  const format = proto.format;
 
-  proto.format = function(this: Carbon, formatStr = FORMAT_DEFAULT) {
-    const result = formatStr.replace(/Q|Do|X|x|k{1,2}|S/g, (match) => {
+  const format = proto.format;
+  proto.format = function (this: Carbon, formatStr = FORMAT_DEFAULT) {
+    const result = formatStr.replace(/Q|Do|X|x|kk?|S/g, (match) => {
       switch (match) {
         case "Q":
           return Math.ceil((this._month + 1) / 3);
-        case "Do": {
+        case "Do":
           return (this._locale as any).ordinal(this._day);
-        }
         case "k":
         case "kk":
-          return utils.padStart(String(this._hours === 0 ? 24 : this._hours), match === "k" ? 1 : 2, "0");
+          return utils.padStart(`${this._hours === 0 ? 24 : this._hours}`, match === "k" ? 1 : 2, "0");
         case "X":
           return Math.floor(this._date.getTime() / 1000);
         default: // "x"
@@ -34,7 +33,7 @@ const leapYear: Carbon.Plugin = (Base) => {
       }
     });
 
-    return format.apply(this, [result]);
+    return format.call(this, result);
   };
 };
 

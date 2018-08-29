@@ -18,6 +18,31 @@ const T = [
 ];
 const Tl = T.length;
 
+const fromTo = (input: Carbon.CarbonInput, withoutSuffix = false, instance: Carbon, isFrom = false) => {
+  const loc = (instance as any)._locale.relativeTime;
+  let result!: number;
+  let out;
+
+  for (let i = 0; i < Tl; i += 1) {
+    const t = T[i];
+
+    if (t.d) result = isFrom
+      ? Carbon.parse(input).diff(instance, t.d as any, true)
+      : instance.diff(input, t.d as any, true);
+
+    const abs = Math.ceil(Math.abs(result));
+
+    if (abs <= (t.r as any) || !t.r) {
+      out = loc[t.l].replace("%d", abs);
+      break;
+    }
+  }
+
+  if (withoutSuffix) return out;
+
+  return ((result > 0) ? loc.future : loc.past).replace("%s", out);
+};
+
 const relativeTime: Carbon.Plugin = (Base) => {
   (Base as any)._en.relativeTime = {
     future: "in %s",
@@ -37,44 +62,19 @@ const relativeTime: Carbon.Plugin = (Base) => {
 
   const proto = Base.prototype;
 
-  const fromTo = (input: Carbon.CarbonInput, withoutSuffix = false, instance: Carbon, isFrom = false) => {
-    const loc = (instance as any)._locale.relativeTime;
-    let result!: number;
-    let out;
-
-    for (let i = 0; i < Tl; i += 1) {
-      const t = T[i];
-
-      if (t.d) result = isFrom
-        ? Carbon.parse(input).diff(instance, t.d as any, true)
-        : instance.diff(input, t.d as any, true);
-
-      const abs = Math.ceil(Math.abs(result));
-
-      if (abs <= (t.r as any) || !t.r) {
-        out = loc[t.l].replace("%d", abs);
-        break;
-      }
-    }
-
-    if (withoutSuffix) return out;
-
-    return ((result > 0) ? loc.future : loc.past).replace("%s", out);
-  };
-
-  proto.from = function(input, withoutSuffix) {
+  proto.from = function (input, withoutSuffix) {
     return fromTo(input, withoutSuffix, this);
   };
 
-  proto.to = function(input, withoutSuffix) {
+  proto.to = function (input, withoutSuffix) {
     return fromTo(input, withoutSuffix, this, true);
   };
 
-  proto.fromNow = function(withoutSuffix) {
+  proto.fromNow = function (withoutSuffix) {
     return this.from(Carbon.parse(), withoutSuffix);
   };
 
-  proto.toNow = function(withoutSuffix) {
+  proto.toNow = function (withoutSuffix) {
     return this.to(Carbon.parse(), withoutSuffix);
   };
 };

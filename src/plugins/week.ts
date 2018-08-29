@@ -4,7 +4,7 @@ import * as Carbon from "../index";
 module week { }
 
 const week: Carbon.Plugin = (Base) => {
-  (Base.prototype as any).week = function(this: Carbon) {
+  Base.prototype.week = function (this: Carbon) {
     const endOfYear = this.endOf(YEAR);
 
     if (endOfYear.weekday() !== 6 && this._month === 11 && (31 - this._day) <= endOfYear.weekday())

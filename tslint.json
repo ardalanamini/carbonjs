@@ -5,6 +5,14 @@
   ],
   "jsRules": {},
   "rules": {
+    "space-before-function-paren": [
+      true,
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
     "trailing-comma": [
       true,
       {
@@ -35,6 +43,7 @@
       "ban-keywords",
       "check-format",
       "allow-pascal-case",
+      "allow-snake-case",
       "allow-leading-underscore"
     ],
     "no-angle-bracket-type-assertion": false,

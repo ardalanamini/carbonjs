@@ -7,6 +7,8 @@ const LOCALES: { [locale: string]: Carbon.Locale } = {
   en,
 };
 
+const PLUGINS: string[] = [];
+
 module Carbon {
   export type CarbonInput = string | number | Date | Carbon;
 
@@ -53,20 +55,48 @@ module Carbon {
 }
 
 interface Carbon {
-  // isBetween
+  // is-between
   isBetween(from: Carbon.CarbonInput, to: Carbon.CarbonInput): boolean;
 
-  // leapYear
-  isLeapYear(): boolean;
+  // day-of-year / jalaali-calendar / islamic-calendar
+  dayOfYear(calendar: "jalaali" | "islamic"): number;
 
-  // relativeTime
+  // leap-year / jalaali-calendar / islamic-calendar
+  isLeapYear(calendar: "jalaali" | "islamic"): boolean;
+
+  // relative-time
   from(input: Carbon.CarbonInput, withoutSuffix?: boolean): string;
   to(input: Carbon.CarbonInput, withoutSuffix?: boolean): string;
   fromNow(withoutSuffix?: boolean): string;
   toNow(withoutSuffix?: boolean): string;
 
-  // week
-  week(): number;
+  // week / jalaali-calendar / islamic-calendar
+  week(calendar: "jalaali" | "islamic"): number;
+
+  // jalaali-calendar / islamic-calendar
+  year(calendar: "jalaali" | "islamic"): number;
+  month(calendar: "jalaali" | "islamic"): number;
+  day(calendar: "jalaali" | "islamic"): number;
+  daysInMonth(calendar: "jalaali" | "islamic"): number;
+
+  // jalaali-calendar / islamic-calendar
+  add(value: string | number, unit: Carbon.ManipulationUnit |
+    "jY" | "jM" | "jYear" | "jMonth" |
+    "iY" | "iM" | "iYear" | "iMonth"): this;
+  subtract(value: string | number, unit: Carbon.ManipulationUnit |
+    "jY" | "jM" | "jYear" | "jMonth" |
+    "iY" | "iM" | "iYear" | "iMonth"): this;
+  set(
+    unit: Carbon.Unit | "weekday" |
+      "jY" | "jM" | "jD" | "jYear" | "jMonth" | "jDay" |
+      "iY" | "iM" | "iD" | "iYear" | "iMonth" | "iDay",
+    value: number): this;
+  startOf(unit: Carbon.CountableUnit |
+    "jY" | "jM" | "jYear" | "jMonth" |
+    "iY" | "iM" | "iYear" | "iMonth"): this;
+  endOf(unit: Carbon.CountableUnit |
+    "jY" | "jM" | "jYear" | "jMonth" |
+    "iY" | "iM" | "iYear" | "iMonth"): this;
 }
 
 class Carbon {
@@ -74,20 +104,28 @@ class Carbon {
 
   protected _localeName: string = localeName;
 
-  protected _date!: Date;
+  protected _date: Date;
 
-  protected _year!: number;
-  protected _month!: number;
-  protected _weekday!: number;
-  protected _day!: number;
-  protected _hours!: number;
-  protected _minutes!: number;
-  protected _seconds!: number;
-  protected _milliseconds!: number;
+  protected _year: number;
+  protected _month: number;
+  protected _weekday: number;
+  protected _day: number;
+  protected _hours: number;
+  protected _minutes: number;
+  protected _seconds: number;
+  protected _milliseconds: number;
 
   static isCarbon = (arg: any): arg is Carbon => arg instanceof Carbon;
 
-  static extend = <T = any>(plugin: Carbon.Plugin<T>, options?: T) => plugin(Carbon, options);
+  static extend = <T = any>(plugin: Carbon.Plugin<T>, options?: T) => {
+    const name = plugin.name;
+
+    if (PLUGINS.indexOf(name) > -1) return;
+
+    plugin(Carbon, options);
+
+    PLUGINS.push(name);
+  }
 
   static locale = (locale: string | Carbon.Locale, global = true) => {
     let _locale = localeName;
@@ -190,8 +228,6 @@ class Carbon {
   }
 
   protected _parseToken(token: string, value: string, dateArray: Carbon.DateInputArray, tokens: Carbon.Tokens) {
-    const locale = this._locale;
-
     switch (token) {
       case "YY":
         dateArray[0] = +(`${utils.newDate().getFullYear()}`.slice(0, 2) + value);
@@ -204,10 +240,11 @@ class Carbon {
         dateArray[1] = (+value) - 1;
         break;
       case "MMM":
+        const locale = this._locale;
         dateArray[1] = utils.findShortIndex(locale.monthsShort, value, locale.months);
         break;
       case "MMMM":
-        dateArray[1] = locale.months.indexOf(value);
+        dateArray[1] = this._locale.months.indexOf(value);
         break;
       case "D":
       case "DD":
@@ -220,7 +257,7 @@ class Carbon {
       case "h":
       case "hh":
         const meridiem = (tokens.A || tokens.a || "am").toLowerCase();
-        dateArray[3] = meridiem === "am" ? (+value) : (+value) + 12;
+        dateArray[3] = (+value) + (meridiem === "am" ? 0 : 12);
         break;
       case "m":
       case "mm":
