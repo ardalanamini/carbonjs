@@ -7,6 +7,7 @@ const testPlugin: Carbon.Plugin = (Base) => {
 describe("Testing plugin extend method", () => {
   test("Carbon.extend", () => {
     Carbon.extend(testPlugin);
+    Carbon.extend(testPlugin);
 
     const carbon = new Carbon();
 

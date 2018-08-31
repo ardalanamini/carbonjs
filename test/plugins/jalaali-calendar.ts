@@ -18,6 +18,10 @@ describe("jalaali-calendar", () => {
 
     [
       {
+        date: "1374-6-05",
+        format: "jYYYY-jM-jDD",
+      },
+      {
         date: "1397-06-05",
         format: "jYYYY-jMM-jDD",
       },
@@ -161,18 +165,25 @@ describe("jalaali-calendar", () => {
   test("set", () => {
     const format = "YYYY-MM-DD";
 
+    expect(Carbon.parse().set("jD", 3).format(format)).toBe(moment().jDate(3).format(format));
     expect(Carbon.parse().set("jDay", 3).format(format)).toBe(moment().jDate(3).format(format));
     expect(Carbon.parse().set("jDay", 500).format(format)).toBe(moment().jDate(500).format(format));
+    expect(Carbon.parse().set("jM", 2).format(format)).toBe(moment().jMonth(2).format(format));
     expect(Carbon.parse().set("jMonth", 2).format(format)).toBe(moment().jMonth(2).format(format));
+    expect(Carbon.parse().set("jY", 1390).format(format)).toBe(moment().jYear(1390).format(format));
     expect(Carbon.parse().set("jYear", 1390).format(format)).toBe(moment().jYear(1390).format(format));
   });
 
   test("start/end", () => {
     const format = "YYYY-MM-DD";
 
+    expect(Carbon.parse().startOf("jY").format(format)).toBe(moment().startOf("jY").format(format));
     expect(Carbon.parse().startOf("jYear").format(format)).toBe(moment().startOf("jYear").format(format));
+    expect(Carbon.parse().startOf("jM").format(format)).toBe(moment().startOf("jM").format(format));
     expect(Carbon.parse().startOf("jMonth").format(format)).toBe(moment().startOf("jMonth").format(format));
+    expect(Carbon.parse().endOf("jY").format(format)).toBe(moment().endOf("jY").format(format));
     expect(Carbon.parse().endOf("jYear").format(format)).toBe(moment().endOf("jYear").format(format));
+    expect(Carbon.parse().endOf("jM").format(format)).toBe(moment().endOf("jM").format(format));
     expect(Carbon.parse().endOf("jMonth").format(format)).toBe(moment().endOf("jMonth").format(format));
   });
 

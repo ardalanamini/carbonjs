@@ -20,17 +20,19 @@ const jd_to_persian = (jd: number) => {
   const cyear = astro.mod(depoch, 1029983);
 
   let ycycle;
-  if (cyear === 1029982) ycycle = 2820;
-  else {
-    const aux1 = Math.floor(cyear / 366);
-    const aux2 = astro.mod(cyear, 366);
-    ycycle = Math.floor(((2134 * aux1) + (2816 * aux2) + 2815) / 1028522) +
-      aux1 + 1;
-  }
+  // if (cyear === 1029982) ycycle = 2820;
+  // else {
+  const aux1 = Math.floor(cyear / 366);
+  const aux2 = astro.mod(cyear, 366);
+  ycycle = Math.floor(((2134 * aux1) + (2816 * aux2) + 2815) / 1028522) +
+    aux1 + 1;
+  // }
 
-  let year = ycycle + (2820 * cycle) + 474;
+  const year = ycycle + (2820 * cycle) + 474;
 
-  if (year <= 0) year--;
+  // let year = ycycle + (2820 * cycle) + 474;
+
+  // if (year <= 0) year--;
 
   const yday = (jd - persian_to_jd(year, 1, 1)) + 1;
   const month = (yday <= 186) ? Math.ceil(yday / 31) : Math.ceil((yday - 6) / 30);
@@ -80,10 +82,10 @@ const persian_year = (jd: number) => {
   let guess = calendars.jd_to_gregorian(jd)[0] - 2;
 
   let lasteq = tehran_equinox_jd(guess);
-  while (lasteq > jd) {
-    guess--;
-    lasteq = tehran_equinox_jd(guess);
-  }
+  // while (lasteq > jd) {
+  //   guess--;
+  //   lasteq = tehran_equinox_jd(guess);
+  // }
 
   let nexteq = lasteq - 1;
 
@@ -134,7 +136,7 @@ const MONTHS: { [locale: string]: string[] } = {
   fa: "فروردین_اردیبهشت_خرداد_تیر_مرداد_شهریور_مهر_آبان_آذر_دی_بهمن_اسفند".split("_"),
 };
 
-const getMonths = (locale: string) => MONTHS[locale] || MONTHS.en;
+const getMonths = (locale: string) => (MONTHS[locale] || MONTHS.en);
 
 const parse = (tokens: Carbon.Tokens, locale: Carbon.Locale) => {
   const now = utils.newDate();
@@ -187,7 +189,11 @@ function jalaali_set(this: Carbon, index: number, value: number) {
 
   const gregorian = persian_to_gregorian.apply(0, jalaali);
 
-  return this.set("year", gregorian[0]).set("month", gregorian[1] - 1).set("day", gregorian[2]);
+  return this
+    .set("d", 1)
+    .set("y", gregorian[0])
+    .set("M", gregorian[1] - 1)
+    .set("d", gregorian[2]);
 }
 
 module jalaaliCalendar { }
@@ -274,10 +280,10 @@ const jalaaliCalendar: Carbon.Plugin = (Base) => {
     switch (unit) {
       case "jY":
       case "jYear":
-        return this.set("jYear", this.year(CALENDAR) + (+value));
+        return this.set("jY", this.year(CALENDAR) + (+value));
       case "jM":
       case "jMonth":
-        return this.set("jMonth", this.month(CALENDAR) + (+value));
+        return this.set("jM", this.month(CALENDAR) + (+value));
       default:
         return add.call(this, value, unit);
     }
@@ -288,48 +294,50 @@ const jalaaliCalendar: Carbon.Plugin = (Base) => {
     this: Carbon,
     unit: Carbon.Unit | "weekday" | "jY" | "jM" | "jD" | "jYear" | "jMonth" | "jDay",
     value: number) {
+    const set_index = (index: number) => jalaali_set.call(this, index, value);
+
     switch (unit) {
       case "jY":
       case "jYear":
-        return jalaali_set.call(this, 0, value);
+        return set_index(0);
       case "jM":
       case "jMonth":
-        return jalaali_set.call(this, 1, value);
+        return set_index(1);
       case "jD":
       case "jDay":
-        return jalaali_set.call(this, 2, value);
+        return set_index(2);
       default:
         return set.call(this, unit, value);
     }
   };
 
   const startOf = proto.startOf;
-  proto.startOf = function (this: Carbon, unit: Carbon.CountableUnit | "jY" | "jM" | "jYear" | "jMonth") {
+  proto.startOf = function (this: Carbon, unit: Carbon.ManipulationUnit | "jY" | "jM" | "jYear" | "jMonth") {
     let carbon = this;
 
     switch (unit) {
       case "jY":
       case "jYear":
-        carbon = carbon.set("jDay", 1).set("jMonth", 0);
+        carbon = carbon.set("jD", 1).set("jM", 0);
       case "jM":
       case "jMonth":
-        return carbon.set("jDay", 1).startOf("day");
+        return carbon.set("jD", 1).startOf("d");
       default:
         return startOf.call(carbon, unit);
     }
   };
 
   const endOf = proto.endOf;
-  proto.endOf = function (this: Carbon, unit: Carbon.CountableUnit | "jY" | "jM" | "jYear" | "jMonth") {
+  proto.endOf = function (this: Carbon, unit: Carbon.ManipulationUnit | "jY" | "jM" | "jYear" | "jMonth") {
     let carbon = this;
 
     switch (unit) {
       case "jY":
       case "jYear":
-        carbon = carbon.set("jDay", 1).set("jMonth", 11);
+        carbon = carbon.set("jD", 1).set("jM", 11);
       case "jM":
       case "jMonth":
-        return carbon.set("jDay", carbon.daysInMonth(CALENDAR)).endOf("day");
+        return carbon.set("jD", carbon.daysInMonth(CALENDAR)).endOf("d");
       default:
         return endOf.call(carbon, unit);
     }

@@ -1,7 +1,6 @@
 import * as Carbon from "../index";
 import { FORMAT_DEFAULT } from "../constants";
 import * as utils from "../utils";
-import * as astro from "./utils/astro";
 import * as calendars from "./utils/calendars";
 import * as leapYearPlugin from "./leap-year";
 import * as dayOfYearPlugin from "./day-of-year";
@@ -31,7 +30,7 @@ const gregorian_to_islamic = (date: Date) =>
   jd_to_islamic(calendars.gregorian_to_jd(date.getFullYear(), date.getMonth() + 1, date.getDate()));
 
 const islamic_to_gregorian = (year: number, month: number, day: number) =>
-  calendars.jd_to_gregorian(islamic_to_jd(year, month, day) + 1);
+  calendars.jd_to_gregorian(islamic_to_jd(year, month, day));
 
 // -------------------- Plugin --------------------
 
@@ -43,8 +42,14 @@ const MONTHS: { [locale: string]: string[] } = {
   // tslint:disable-next-line:max-line-length
   ar: "ٱلْمُحَرَّم_صَفَر_رَبِيع ٱلْأَوَّل_رَبِيع ٱلْآخِر_جُمَادَىٰ ٱلْأُولَىٰ_جُمَادَىٰ ٱلْآخِرَة_رَجَب_شَعْبَان_رَمَضَان_شَوَّال_ذُو ٱلْقَعْدَة_ذُو ٱلْحِجَّة".split("_"),
 };
+const MONTHS_SHORT: { [locale: string]: string[] } = {
+  en: "Muh_Saf_Rab-I_Rab-II_Jum-I_Jum-II_Raj_Sha_Ram_Shw_Dhu-Q_Dhu-H".split("_"),
+  // tslint:disable-next-line:max-line-length
+  ar: "ٱلْمُحَرَّم_صَفَر_رَبِيع ۱_رَبِيع ۲_جُمَادَىٰ ۱_جُمَادَىٰ ۲_رَجَب_شَعْبَان_رَمَضَان_شَوَّال_ذُو ٱلْقَعْدَة_ذُو ٱلْحِجَّة".split("_"),
+};
 
-const getMonths = (locale: string) => MONTHS[locale] || MONTHS.en;
+const getMonths = (locale: string) => (MONTHS[locale] || MONTHS.en);
+const getMonthsShort = (locale: string) => (MONTHS_SHORT[locale] || MONTHS_SHORT.en);
 
 const parse = (tokens: Carbon.Tokens, locale: Carbon.Locale) => {
   const now = utils.newDate();
@@ -70,13 +75,9 @@ const parse = (tokens: Carbon.Tokens, locale: Carbon.Locale) => {
 
   let iMonth: string | number = tokens.iMM || tokens.iM;
   if (iMonth) iMonth = (+iMonth) - 1;
-  else {
-    const months = getMonths(locale.name);
-
-    if (tokens.iMMMM) iMonth = months.indexOf(tokens.iMMMM);
-    else if (tokens.iMMM) iMonth = months.map((month) => month.slice(0, 3)).indexOf(tokens.iMMM);
-    else iMonth = iNow[1] - 1;
-  }
+  else if (tokens.iMMMM) iMonth = getMonths(locale.name).indexOf(tokens.iMMMM);
+  else if (tokens.iMMM) iMonth = getMonthsShort(locale.name).indexOf(tokens.iMMM);
+  else iMonth = iNow[1] - 1;
 
   const iDay = +(tokens.iDD || tokens.iD || iNow[2]);
 
@@ -97,7 +98,11 @@ function islamic_set(this: Carbon, index: number, value: number) {
 
   const gregorian = islamic_to_gregorian.apply(0, islamic);
 
-  return this.set("year", gregorian[0]).set("month", gregorian[1] - 1).set("day", gregorian[2]);
+  return this
+    .set("d", 1)
+    .set("y", gregorian[0])
+    .set("M", gregorian[1] - 1)
+    .set("d", gregorian[2]);
 }
 
 module islamicCalendar { }
@@ -164,7 +169,15 @@ const islamicCalendar: Carbon.Plugin = (Base) => {
 
   const daysInMonth = proto.daysInMonth;
   proto.daysInMonth = function (this: Carbon, calendar?: string) {
-    if (calendar === CALENDAR) return this.endOf("iMonth").diff(this.startOf("iMonth"), "day");
+    if (calendar === CALENDAR) {
+      let days = this.startOf("iM")
+        .add(1, "iM")
+        .diff(this.startOf("iM"), "d") - 1;
+
+      if (days === 28) days = 30;
+
+      return days;
+    }
 
     return daysInMonth.call(this, calendar);
   };
@@ -174,10 +187,10 @@ const islamicCalendar: Carbon.Plugin = (Base) => {
     switch (unit) {
       case "iY":
       case "iYear":
-        return this.set("iYear", this.year(CALENDAR) + (+value));
+        return this.set("iY", this.year(CALENDAR) + (+value));
       case "iM":
       case "iMonth":
-        return this.set("iMonth", this.month(CALENDAR) + (+value));
+        return this.set("iM", this.month(CALENDAR) + (+value));
       default:
         return add.call(this, value, unit);
     }
@@ -186,50 +199,52 @@ const islamicCalendar: Carbon.Plugin = (Base) => {
   const set = proto.set;
   proto.set = function (
     this: Carbon,
-    unit: Carbon.Unit | "weekday" | "iY" | "iM" | "jD" | "iYear" | "iMonth" | "iDay",
+    unit: Carbon.Unit | "weekday" | "iY" | "iM" | "iD" | "iYear" | "iMonth" | "iDay",
     value: number) {
+    const set_index = (index: number) => islamic_set.call(this, index, value);
+
     switch (unit) {
       case "iY":
       case "iYear":
-        return islamic_set.call(this, 0, value);
+        return set_index(0);
       case "iM":
       case "iMonth":
-        return islamic_set.call(this, 1, value);
-      case "jD":
+        return set_index(1);
+      case "iD":
       case "iDay":
-        return islamic_set.call(this, 2, value);
+        return set_index(2);
       default:
         return set.call(this, unit, value);
     }
   };
 
   const startOf = proto.startOf;
-  proto.startOf = function (this: Carbon, unit: Carbon.CountableUnit | "iY" | "iM" | "iYear" | "iMonth") {
+  proto.startOf = function (this: Carbon, unit: Carbon.ManipulationUnit | "iY" | "iM" | "iYear" | "iMonth") {
     let carbon = this;
 
     switch (unit) {
       case "iY":
       case "iYear":
-        carbon = carbon.set("iDay", 1).set("iMonth", 0);
+        carbon = carbon.set("iD", 1).set("iM", 0);
       case "iM":
       case "iMonth":
-        return carbon.set("iDay", 1).startOf("day");
+        return carbon.set("iD", 1).startOf("d");
       default:
         return startOf.call(carbon, unit);
     }
   };
 
   const endOf = proto.endOf;
-  proto.endOf = function (this: Carbon, unit: Carbon.CountableUnit | "iY" | "iM" | "iYear" | "iMonth") {
+  proto.endOf = function (this: Carbon, unit: Carbon.ManipulationUnit | "iY" | "iM" | "iYear" | "iMonth") {
     let carbon = this;
 
     switch (unit) {
       case "iY":
       case "iYear":
-        carbon = carbon.set("iDay", 1).set("iMonth", 11);
+        carbon = carbon.set("iD", 1).set("iM", 11);
       case "iM":
       case "iMonth":
-        return carbon.set("iDay", carbon.daysInMonth(CALENDAR)).endOf("day");
+        return carbon.set("iD", carbon.daysInMonth(CALENDAR)).endOf("d");
       default:
         return endOf.call(carbon, unit);
     }
@@ -286,7 +301,7 @@ const islamicCalendar: Carbon.Plugin = (Base) => {
           result = utils.padStart(`${this.month(CALENDAR) + 1}`, match === "iM" ? 1 : 2, "0");
           break;
         case "iMMM":
-          result = getMonths(this._localeName)[this.month(CALENDAR)].slice(0, 3);
+          result = getMonthsShort(this._localeName)[this.month(CALENDAR)];
           break;
         case "iMMMM":
           result = getMonths(this._localeName)[this.month(CALENDAR)];

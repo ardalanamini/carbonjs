@@ -1,12 +1,11 @@
 import * as Carbon from "../index";
+import { leap_gregorian } from "./utils/calendars";
 
 module leapYear { }
 
 const leapYear: Carbon.Plugin = (Base) => {
   Base.prototype.isLeapYear = function (this: Carbon) {
-    const year = this._year;
-
-    return (year % 100 === 0) ? (year % 400 === 0) : (year % 4 === 0);
+    return leap_gregorian(this._year);
   };
 };
 

@@ -12,13 +12,11 @@ const PLUGINS: string[] = [];
 module Carbon {
   export type CarbonInput = string | number | Date | Carbon;
 
-  export type Unit = "year" | "month" | "day" |
-    "hour" | "minute" | "second" | "millisecond";
+  export type Unit = "y" | "year" | "M" | "month" | "d" | "day" |
+    "h" | "hour" | "m" | "minute" | "s" | "second" | "ms" | "millisecond";
 
-  export type CountableUnit = Carbon.Unit | "years" | "months" | "week" | "weeks" | "days" |
+  export type ManipulationUnit = Carbon.Unit | "years" | "months" | "w" | "week" | "weeks" | "days" |
     "hours" | "minutes" | "seconds" | "milliseconds";
-
-  export type ManipulationUnit = Carbon.CountableUnit | "y" | "M" | "w" | "d" | "h" | "m" | "s" | "ms";
 
   export type DateInputArray = [number, number, number, number, number, number, number];
 
@@ -59,10 +57,10 @@ interface Carbon {
   isBetween(from: Carbon.CarbonInput, to: Carbon.CarbonInput): boolean;
 
   // day-of-year / jalaali-calendar / islamic-calendar
-  dayOfYear(calendar: "jalaali" | "islamic"): number;
+  dayOfYear(calendar?: "jalaali" | "islamic"): number;
 
   // leap-year / jalaali-calendar / islamic-calendar
-  isLeapYear(calendar: "jalaali" | "islamic"): boolean;
+  isLeapYear(calendar?: "jalaali" | "islamic"): boolean;
 
   // relative-time
   from(input: Carbon.CarbonInput, withoutSuffix?: boolean): string;
@@ -71,7 +69,7 @@ interface Carbon {
   toNow(withoutSuffix?: boolean): string;
 
   // week / jalaali-calendar / islamic-calendar
-  week(calendar: "jalaali" | "islamic"): number;
+  week(calendar?: "jalaali" | "islamic"): number;
 
   // jalaali-calendar / islamic-calendar
   year(calendar: "jalaali" | "islamic"): number;
@@ -91,10 +89,10 @@ interface Carbon {
       "jY" | "jM" | "jD" | "jYear" | "jMonth" | "jDay" |
       "iY" | "iM" | "iD" | "iYear" | "iMonth" | "iDay",
     value: number): this;
-  startOf(unit: Carbon.CountableUnit |
+  startOf(unit: Carbon.ManipulationUnit |
     "jY" | "jM" | "jYear" | "jMonth" |
     "iY" | "iM" | "iYear" | "iMonth"): this;
-  endOf(unit: Carbon.CountableUnit |
+  endOf(unit: Carbon.ManipulationUnit |
     "jY" | "jM" | "jYear" | "jMonth" |
     "iY" | "iM" | "iYear" | "iMonth"): this;
 }
@@ -287,7 +285,7 @@ class Carbon {
     return this.valueOf() - new Carbon(input).valueOf();
   }
 
-  private _edge(unit: Carbon.CountableUnit, start: boolean = true) {
+  private _edge(unit: Carbon.ManipulationUnit, start: boolean = true) {
     unit = utils.prettyUnit(unit);
 
     const instanceFactory = (day: number, month: number): Carbon => {
@@ -394,11 +392,11 @@ class Carbon {
     return this._date.getTime();
   }
 
-  startOf(unit: Carbon.CountableUnit) {
+  startOf(unit: Carbon.ManipulationUnit) {
     return this._edge(unit);
   }
 
-  endOf(unit: Carbon.CountableUnit) {
+  endOf(unit: Carbon.ManipulationUnit) {
     return this._edge(unit, false);
   }
 
@@ -411,6 +409,8 @@ class Carbon {
   }
 
   set(unit: Carbon.Unit | "weekday", value: number) {
+    unit = utils.prettyUnit(unit);
+
     const date = utils.newDate(this._date);
 
     switch (unit) {

@@ -18,7 +18,7 @@ import * as astro from "./astro";
 
 //  LEAP_GREGORIAN  --  Is a given year in the Gregorian calendar a leap year ?
 
-const leap_gregorian = (year: number) => ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
+export const leap_gregorian = (year: number) => (year % 100 === 0) ? (year % 400 === 0) : (year % 4 === 0);
 
 //  GREGORIAN_TO_JD  --  Determine Julian day number from Gregorian calendar date
 

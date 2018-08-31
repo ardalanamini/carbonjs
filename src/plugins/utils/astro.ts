@@ -15,10 +15,6 @@ export const JulianMillennium = JulianCentury * 10;   // Days in Julian millenni
 export const AstronomicalUnit = 149597870.0;            // Astronomical unit in kilometres
 export const TropicalYear = 365.24219878;           // Mean solar tropical year
 
-/*  ASTOR  --  Arc-seconds to radians.  */
-
-export const astor = (a: number) => a * (Math.PI / (180.0 * 3600.0));
-
 /*  DTR  --  Degrees to radians.  */
 
 export const dtr = (d: number) => (d * Math.PI) / 180.0;
@@ -47,31 +43,7 @@ export const dcos = (d: number) => Math.cos(dtr(d));
 
 export const mod = (a: number, b: number) => a - (b * Math.floor(a / b));
 
-//  AMOD  --  Modulus function which returns numerator if modulus is zero
-
-export const amod = (a: number, b: number) => mod(a - 1, b) + 1;
-
-/*  JHMS  --  Convert Julian time to hour, minutes, and seconds,
-              returned as a three-element array.  */
-
-export const jhms = (j: number) => {
-  j += 0.5;                 /* Astronomical to civil */
-
-  const ij = ((j - Math.floor(j)) * 86400.0) + 0.5;
-
-  return [
-    Math.floor(ij / 3600),
-    Math.floor((ij / 60) % 60),
-    Math.floor(ij % 60),
-  ];
-};
-
-//  JWDAY  --  Calculate day of week from Julian day
-
-export const Weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday",
-  "Thursday", "Friday", "Saturday"];
-
-export const jwday = (j: number) => mod(Math.floor((j + 1.5)), 7);
+// export const jwday = (j: number) => mod(Math.floor((j + 1.5)), 7);
 
 /*  OBLIQEQ  --  Calculate the obliquity of the ecliptic for a given
                  Julian date.  This uses Laskar's tenth-degree
@@ -298,33 +270,6 @@ export const nutation = (jd: number) => {
      seconds to radians in the process. */
 
   return [dp / (3600.0 * 10000.0), de / (3600.0 * 10000.0)];
-};
-
-/*  ECLIPTOEQ  --  Convert celestial (ecliptical) longitude and
-                   latitude into right ascension (in degrees) and
-                   declination.  We must supply the time of the
-                   conversion in order to compensate correctly for the
-                   varying obliquity of the ecliptic over time.
-                   The right ascension and declination are returned
-                   as a two-element Array in that order.  */
-
-export const ecliptoeq = (jd: number, Lambda: number, Beta: number) => {
-  /* Obliquity of the ecliptic. */
-
-  const eps = dtr(obliqeq(jd));
-  // log += "Obliquity: " + rtd(eps) + "\n";
-
-  let Ra = rtd(Math.atan2((Math.cos(eps) * Math.sin(dtr(Lambda)) -
-    (Math.tan(dtr(Beta)) * Math.sin(eps))),
-    Math.cos(dtr(Lambda))));
-  // log += "RA = " + Ra + "\n";
-  Ra = fixangle(rtd(Math.atan2((Math.cos(eps) * Math.sin(dtr(Lambda)) -
-    (Math.tan(dtr(Beta)) * Math.sin(eps))),
-    Math.cos(dtr(Lambda)))));
-  const Dec = rtd(Math.asin((Math.sin(eps) * Math.sin(dtr(Lambda)) * Math.cos(dtr(Beta))) +
-    (Math.sin(dtr(Beta)) * Math.cos(eps))));
-
-  return [Ra, Dec];
 };
 
 /*  DELTAT  --  Determine the difference, in seconds, between
