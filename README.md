@@ -45,6 +45,7 @@ Typescript ready date library alternative to Moment.js
 - :globe_with_meridians: I18n support
 - :gear: Plugin support
 - :gear: Calendar support (as part of plugin support)
+- :package: 3kb mini library
 
 ## Getting Started
 
