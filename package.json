@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Javascript date library alternative to Moment.js with the same modern API",
   "author": "Ardalan Amini <ardalanamini22@gmail.com> [https://github.com/ardalanamini]",
-  "homepage": "https://github.com/ardalanamini/carbonjs#readme",
+  "homepage": "https://carbon.js.org",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ardalanamini/carbonjs.git"

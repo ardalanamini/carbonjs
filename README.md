@@ -94,7 +94,7 @@ Carbon.parse("2018-05-05").locale("zh-cn").format(); // use Chinese Simplified l
 A plugin is an independent module that can be added to Day.js to extend functionality or add new features.
 
 ```javascript
-import * as advancedFormat from 'carbonjs/lib/plugins/advancedFormat' // load on demand
+import * as advancedFormat from 'carbonjs/lib/plugins/advanced-format' // load on demand
 
 Carbon.extend(advancedFormat) // use plugin
 
