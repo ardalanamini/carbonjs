@@ -5,7 +5,7 @@ import * as astro from "./utils/astro";
 import * as calendars from "./utils/calendars";
 import * as leapYearPlugin from "./leap-year";
 import * as dayOfYearPlugin from "./day-of-year";
-import * as weekPlugin from "./week";
+import * as weekOfYearPlugin from "./week-of-year";
 
 const PERSIAN_EPOCH = 1948320.5;
 
@@ -201,7 +201,7 @@ module jalaaliCalendar { }
 const jalaaliCalendar: Carbon.Plugin = (Base) => {
   Base.extend(dayOfYearPlugin);
   Base.extend(leapYearPlugin);
-  Base.extend(weekPlugin);
+  Base.extend(weekOfYearPlugin);
 
   const proto = Base.prototype;
 
@@ -367,8 +367,8 @@ const jalaaliCalendar: Carbon.Plugin = (Base) => {
     return isLeapYear.call(this, calendar);
   };
 
-  const week = proto.week;
-  proto.week = function (this: Carbon, calendar?: string) {
+  const weekOfYear = proto.weekOfYear;
+  proto.weekOfYear = function (this: Carbon, calendar?: string) {
     if (calendar === CALENDAR) {
       let daysToDayOfWeek = 12 - this._weekday;
 
@@ -377,7 +377,7 @@ const jalaaliCalendar: Carbon.Plugin = (Base) => {
       return Math.ceil(this.add(daysToDayOfWeek, "d").dayOfYear(CALENDAR) / 7);
     }
 
-    return week.call(this, calendar);
+    return weekOfYear.call(this, calendar);
   };
 
   const format = proto.format;

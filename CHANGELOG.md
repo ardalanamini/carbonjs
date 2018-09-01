@@ -12,6 +12,6 @@
 
 ---
 
-## [next](https://github.com/ardalanamini/prototyped.js/releases/tag/next) - *(2018-__-__)*
+## [v1.0.0](https://github.com/ardalanamini/prototyped.js/releases/tag/v1.0.0) - *(2018-09-01)*
 
 - :tada: First release

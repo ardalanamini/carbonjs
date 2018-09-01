@@ -69,7 +69,7 @@ interface Carbon {
   toNow(withoutSuffix?: boolean): string;
 
   // week / jalaali-calendar / islamic-calendar
-  week(calendar?: "jalaali" | "islamic"): number;
+  weekOfYear(calendar?: "jalaali" | "islamic"): number;
 
   // jalaali-calendar / islamic-calendar
   year(calendar: "jalaali" | "islamic"): number;

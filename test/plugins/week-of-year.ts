@@ -1,19 +1,19 @@
 import * as MockDate from "mockdate";
 import * as moment from "moment";
 import * as Carbon from "../../src";
-import * as week from "../../src/plugins/week";
+import * as weekOfYear from "../../src/plugins/week-of-year";
 
-Carbon.extend(week);
+Carbon.extend(weekOfYear);
 
 beforeEach(() => MockDate.set(new Date()));
 
 afterEach(() => MockDate.reset());
 
-describe("week", () => {
+describe("weekOfYear", () => {
   test("Week of year", () => {
     const day = "2018-12-31T10:59:09+08:00";
 
-    expect(Carbon.parse(day).week()).toBe(moment(day).weeks());
-    expect(Carbon.parse().week()).toBe(moment().weeks());
+    expect(Carbon.parse(day).weekOfYear()).toBe(moment(day).weeks());
+    expect(Carbon.parse().weekOfYear()).toBe(moment().weeks());
   });
 });

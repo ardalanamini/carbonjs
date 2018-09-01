@@ -1,187 +1,255 @@
 # API Reference
 
-Instead of modifying the native `Date.prototype`, Carbon.js creates a wrapper for the Date object, called `Carbonjs` object.
+Instead of modifying the native `Date.prototype`, Carbon.js creates a wrapper for the Date object, called `Carbon` object.
 
-The `Carbonjs` object is immutable, that is, all API operations that change the `Carbonjs` object in some way will return a new instance of it.
+The `Carbon` object is immutable, that is, all API operations that change the `Carbon` object in some way will return a new instance of it.
 
 ## Table of Content <!-- omit in toc -->
 
 - [Parsing](#parsing)
-  - [Constructor `dayjs(existing?: string | number | Date | Carbonjs)`](#constructor-dayjsexisting-string--number--date--carbonjs)
+  - [Constructor](#constructor)
+    - [List of all available parse formats](#list-of-all-available-parse-formats)
     - [ISO 8601 string](#iso-8601-string)
     - [Unix Timestamp (milliseconds since the Unix Epoch - Jan 1 1970, 12AM UTC)](#unix-timestamp-milliseconds-since-the-unix-epoch---jan-1-1970-12am-utc)
     - [Native Javascript Date object](#native-javascript-date-object)
-  - [Clone `.clone() | dayjs(original: Carbonjs)`](#clone-clone--dayjsoriginal-carbonjs)
-  - [Validation `.isValid()`](#validation-isvalid)
+  - [Clone](#clone)
+  - [Validation](#validation)
 - [Get and Set](#get-and-set)
-  - [Year `.year()`](#year-year)
-  - [Month `.month()`](#month-month)
-  - [Day of the Month `.date()`](#day-of-the-month-date)
-  - [Day of the Week `.day()`](#day-of-the-week-day)
-  - [Hour `.hour()`](#hour-hour)
-  - [Minute `.minute()`](#minute-minute)
-  - [Second `.second()`](#second-second)
-  - [Millisecond `.millisecond()`](#millisecond-millisecond)
-  - [Set `.set(unit: string, value: number)`](#set-setunit-string-value-number)
+  - [Year](#year)
+  - [Month](#month)
+  - [Day of the Month](#day-of-the-month)
+  - [Day of the Week](#day-of-the-week)
+  - [Hour](#hour)
+  - [Minute](#minute)
+  - [Second](#second)
+  - [Millisecond](#millisecond)
+  - [Set](#set)
     - [List of all available units](#list-of-all-available-units)
 - [Manipulating](#manipulating)
-  - [Add `.add(value: number, unit: string)`](#add-addvalue-number-unit-string)
-  - [Subtract `.subtract(value: number, unit: string)`](#subtract-subtractvalue-number-unit-string)
-  - [Start of Time `.startOf(unit: string)`](#start-of-time-startofunit-string)
-  - [End of Time `.endOf(unit: string)`](#end-of-time-endofunit-string)
+  - [Add](#add)
+  - [Subtract](#subtract)
+  - [Start of Time](#start-of-time)
+  - [End of Time](#end-of-time)
 - [Displaying](#displaying)
-  - [Format `.format(stringWithTokens: string)`](#format-formatstringwithtokens-string)
+  - [Format](#format)
     - [List of all available formats](#list-of-all-available-formats)
-  - [Difference `.diff(compared: Carbonjs, unit: string (default: 'milliseconds'), float?: boolean)`](#difference-diffcompared-carbonjs-unit-string-default-milliseconds-float-boolean)
-  - [Unix Timestamp (milliseconds) `.valueOf()`](#unix-timestamp-milliseconds-valueof)
-  - [Unix Timestamp (seconds) `.unix()`](#unix-timestamp-seconds-unix)
-  - [Days in the Month `.daysInMonth()`](#days-in-the-month-daysinmonth)
-  - [As Javascript Date `.toDate()`](#as-javascript-date-todate)
-  - [As Array `.toArray()`](#as-array-toarray)
-  - [As JSON `.toJSON()`](#as-json-tojson)
-  - [As ISO 8601 String `.toISOString()`](#as-iso-8601-string-toisostring)
-  - [As Object `.toObject()`](#as-object-toobject)
-  - [As String `.toString()`](#as-string-tostring)
+  - [Difference](#difference)
+  - [Unix Timestamp (milliseconds)](#unix-timestamp-milliseconds)
+  - [Unix Timestamp (seconds)](#unix-timestamp-seconds)
+  - [Days in the Month](#days-in-the-month)
+  - [As Javascript Date](#as-javascript-date)
+  - [As Array](#as-array)
+  - [As JSON](#as-json)
+  - [As ISO 8601 String](#as-iso-8601-string)
+  - [As Object](#as-object)
+  - [As String](#as-string)
 - [Query](#query)
-  - [Is Before `.isBefore(compared: Carbonjs)`](#is-before-isbeforecompared-carbonjs)
-  - [Is Same `.isSame(compared: Carbonjs)`](#is-same-issamecompared-carbonjs)
-  - [Is After `.isAfter(compared: Carbonjs)`](#is-after-isaftercompared-carbonjs)
-  - [Is a Carbonjs `.isDayjs(compared: any)`](#is-a-carbonjs-isdayjscompared-any)
+  - [Is Before](#is-before)
+  - [Is Same](#is-same)
+  - [Is After](#is-after)
+  - [Is a Carbonjs](#is-a-carbonjs)
+- [Internationalization](#internationalization)
 - [Plugin APIs](#plugin-apis)
-  - [RelativeTime](#relativetime)
-  - [IsLeapYear](#isleapyear)
-  - [WeekOfYear](#weekofyear)
-  - [IsBetween](#isbetween)
+  - [Day of Year](#day-of-year)
+  - [Is Between](#is-between)
+  - [Leap Year](#leap-year)
+  - [Relative Time](#relative-time)
+  - [Week of Year](#week-of-year)
+- [Calendars API (used as plugin)](#calendars-api-used-as-plugin)
+  - [Islamic Calendar](#islamic-calendar)
+  - [Jalaali Calendar](#jalaali-calendar)
 
 ## Parsing
 
-### Constructor `dayjs(existing?: string | number | Date | Carbonjs)`
+### Constructor
 
-Calling it without parameters returns a fresh `Carbonjs` object with the current date and time.
+`new Carbon(input?: string | number | Date | Carbon, format?: string, locale?: string)`
 
-```js
-dayjs();
+or
+
+`Carbon.parse(input?: string | number | Date | Carbon, format?: string, locale?: string)`
+
+Calling it without parameters returns a fresh `Carbon` object with the current date and time.
+
+```javascript
+new Carbon();
+
+Carbon.parse();
+
+new Carbon();
+
+Carbon.parse("2018-22-1", "YYYY-DD-MM");
+
+new Carbon("2018-22-1", "YYYY-DD-MM", "es");
 ```
 
-Day.js also parses other date formats.
+#### List of all available parse formats
+
+| Format | Output           | Description                       |
+| ------ | ---------------- | --------------------------------- |
+| `YY`   | 18               | Two-digit year                    |
+| `YYYY` | 2018             | Four-digit year                   |
+| `M`    | 1-12             | The month, beginning at 1         |
+| `MM`   | 01-12            | The month, 2-digits               |
+| `MMM`  | Jan-Dec          | The abbreviated month name        |
+| `MMMM` | January-December | The full month name               |
+| `D`    | 1-31             | The day of the month              |
+| `DD`   | 01-31            | The day of the month, 2-digits    |
+| `H`    | 0-23             | The hour                          |
+| `HH`   | 00-23            | The hour, 2-digits                |
+| `h`    | 1-12             | The hour, 12-hour clock           |
+| `hh`   | 01-12            | The hour, 12-hour clock, 2-digits |
+| `m`    | 0-59             | The minute                        |
+| `mm`   | 00-59            | The minute, 2-digits              |
+| `s`    | 0-59             | The second                        |
+| `ss`   | 00-59            | The second, 2-digits              |
+| `SSS`  | 000-999          | The millisecond, 3-digits         |
+| `A`    | AM/PM            | -                                 |
+| `a`    | am/pm            | -                                 |
+
+Carbon.js also parses other date formats by default.
 
 #### [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) string
 
-```js
-dayjs('2018-04-04T16:00:00.000Z');
+```javascript
+Carbon.parse('2018-04-04T16:00:00.000Z');
 ```
 
 #### Unix Timestamp (milliseconds since the Unix Epoch - Jan 1 1970, 12AM UTC)
 
-```js
-dayjs(1318781876406);
+```javascript
+new Carbon(1318781876406);
 ```
 
 #### Native Javascript Date object
 
-```js
-dayjs(new Date(2018, 8, 18));
+```javascript
+Carbon.parse(new Date(2018, 8, 18));
 ```
 
-### Clone `.clone() | dayjs(original: Carbonjs)`
+### Clone
 
-Returns a cloned `Carbonjs`.
+`.clone() | new Carbon(original: Carbon) | Carbon.parse(original: Carbon)`
 
-```js
-dayjs().clone();
-dayjs(dayjs('2019-01-25')); // passing a Carbonjs object to a constructor will also clone it
+Returns a cloned `Carbon`.
+
+```javascript
+Carbon.parse().clone();
+
+// passing a Carbonjs object to a constructor will also clone it
+new Carbon(Carbon.parse('2019-01-25'));
 ```
 
-### Validation `.isValid()`
+### Validation
 
-Returns a `boolean` indicating whether the `Carbonjs`'s date is valid.
+`.isValid()`
 
-```js
-dayjs().isValid();
+Returns a `boolean` indicating whether the `Carbon`'s date is valid.
+
+```javascript
+Carbon.parse().isValid();
 ```
 
 ## Get and Set
 
-### Year `.year()`
+### Year
 
-Returns a `number` representing the `Carbonjs`'s year.
+`.year()`
 
-```js
-dayjs().year();
+Returns a `number` representing the `Carbon`'s year.
+
+```javascript
+Carbon.parse().year();
 ```
 
-### Month `.month()`
+### Month
 
-Returns a `number` representing the `Carbonjs`'s month.
+`.month()`
 
-```js
-dayjs().month();
+Returns a `number` representing the `Carbon`'s month.
+
+```javascript
+Carbon.parse().month();
 ```
 
-### Day of the Month `.date()`
+### Day of the Month
 
-Returns a `number` representing the `Carbonjs`'s day of the month.
+`.day()`
 
-```js
-dayjs().date();
+Returns a `number` representing the `Carbon`'s day of the month.
+
+```javascript
+Carbon.parse().day();
 ```
 
-### Day of the Week `.day()`
+### Day of the Week
 
-Returns a `number` representing the `Carbonjs`'s day of the week
+`.weekday()`
 
-```js
-dayjs().day();
+Returns a `number` representing the `Carbon`'s day of the week
+
+```javascript
+Carbon.parse().weekday();
 ```
 
-### Hour `.hour()`
+### Hour
 
-Returns a `number` representing the `Carbonjs`'s hour.
+`.hour()`
 
-```js
-dayjs().hour();
+Returns a `number` representing the `Carbon`'s hour.
+
+```javascript
+Carbon.parse().hour();
 ```
 
-### Minute `.minute()`
+### Minute
 
-Returns a `number` representing the `Carbonjs`'s minute.
+`.minute()`
 
-```js
-dayjs().minute();
+Returns a `number` representing the `Carbon`'s minute.
+
+```javascript
+Carbon.parse().minute();
 ```
 
-### Second `.second()`
+### Second
 
-Returns a `number` representing the `Carbonjs`'s second.
+`.second()`
 
-```js
-dayjs().second();
+Returns a `number` representing the `Carbon`'s second.
+
+```javascript
+Carbon.parse().second();
 ```
 
-### Millisecond `.millisecond()`
+### Millisecond
 
-Returns a `number` representing the `Carbonjs`'s millisecond.
+`.millisecond()`
 
-```js
-dayjs().millisecond();
+Returns a `number` representing the `Carbon`'s millisecond.
+
+```javascript
+Carbon.parse().millisecond();
 ```
 
-### Set `.set(unit: string, value: number)`
+### Set
 
-Returns a `Carbonjs` with the applied changes.
+`.set(unit: string, value: number)`
 
-```js
-dayjs().set('date', 1);
-dayjs().set('month', 3); // April
-dayjs().set('second', 30);
+Returns a `Carbon` with the applied changes.
+
+```javascript
+Carbon.parse().set('day', 1);
+Carbon.parse().set('month', 3); // April
+Carbon.parse().set('second', 30);
 ```
 
 #### List of all available units
 
 | Unit          | Shorthand | Description                              |
 | ------------- | --------- | ---------------------------------------- |
-| `date`        |           | Date of Month                            |
-| `day`         | `d`       | Day of Week (Sunday as 0, Saturday as 6) |
+| `day`         | `d`       | Day of Month                             |
+| `weekday`     | -         | Day of Week (Sunday as 0, Saturday as 6) |
 | `month`       | `M`       | Month                                    |
 | `year`        | `y`       | Year                                     |
 | `hour`        | `h`       | Hour                                     |
@@ -191,59 +259,70 @@ dayjs().set('second', 30);
 
 ## Manipulating
 
-`Carbonjs` objects can be manipulated in many ways.
+`Carbon` objects can be manipulated in many ways.
 
-```js
-dayjs('2019-01-25')
+```javascript
+Carbon.parse('2019-01-25')
   .add(1, 'day')
-  .subtract(1, 'year').toString(); // Fri, 26 Jan 2018 00:00:00 GMT
+  .subtract(1, 'year')
+  .toString(); // Fri, 26 Jan 2018 00:00:00 GMT
 ```
 
-### Add `.add(value: number, unit: string)`
+### Add
 
-Returns a cloned `Carbonjs` with a specified amount of time added.
+`.add(value: number, unit: string)`
 
-```js
-dayjs().add(7, 'day');
+Returns a cloned `Carbon` with a specified amount of time added.
+
+```javascript
+Carbon.parse().add(7, 'day');
 ```
 
-### Subtract `.subtract(value: number, unit: string)`
+### Subtract
 
-Returns a cloned `Carbonjs` with a specified amount of time subtracted.
+`.subtract(value: number, unit: string)`
 
-```js
-dayjs().subtract(7, 'year');
+Returns a cloned `Carbon` with a specified amount of time subtracted.
+
+```javascript
+Carbon.parse().subtract(7, 'year');
 ```
 
-### Start of Time `.startOf(unit: string)`
+### Start of Time
 
-Returns a cloned `Carbonjs` set to the start of the specified unit of time.
+`.startOf(unit: string)`
 
-```js
-dayjs().startOf('week');
+Returns a cloned `Carbon` set to the start of the specified unit of time.
+
+```javascript
+Carbon.parse().startOf('week');
 ```
 
-### End of Time `.endOf(unit: string)`
+### End of Time
 
-Returns a cloned `Carbonjs` set to the end of the specified unit of time.
+`.endOf(unit: string)`
 
-```js
-dayjs().endOf('month');
+Returns a cloned `Carbon` set to the end of the specified unit of time.
+
+```javascript
+Carbon.parse().endOf('month');
 ```
 
 ## Displaying
 
-### Format `.format(stringWithTokens: string)`
+### Format
 
-Returns a `string` with the `Carbonjs`'s formatted date.
-To escape characters, wrap them in square or culy brackets (e.g. `[G] {um}`).
+`.format(stringWithTokens: string)`
 
-```js
-dayjs().format(); // current date in ISO6801, without fraction seconds e.g. '2020-04-02T08:02:17-05:00'
+Returns a `string` with the `Carbon`'s formatted date.
+To escape characters, wrap them in square (e.g. `[G]`).
 
-dayjs('2019-01-25').format('{YYYY} MM-DDTHH:mm:ssZ[Z]'); // '{2019} 01-25T00:00:00-02:00Z'
+```javascript
+Carbon.parse().format(); // current date in ISO6801, without fraction seconds e.g. '2020-04-02T08:02:17-05:00'
 
-dayjs('2019-01-25').format('DD/MM/YYYY'); // '25/01/2019'
+Carbon.parse('2019-01-25').format('{YYYY} MM-DDTHH:mm:ssZ[Z]'); // '{2019} 01-25T00:00:00-02:00Z'
+
+Carbon.parse('2019-01-25').format('DD/MM/YYYY'); // '25/01/2019'
 ```
 
 #### List of all available formats
@@ -273,86 +352,104 @@ dayjs('2019-01-25').format('DD/MM/YYYY'); // '25/01/2019'
 | `SSS`  | 000-999          | The millisecond, 3-digits             |
 | `Z`    | +5:00            | The offset from UTC                   |
 | `ZZ`   | +0500            | The offset from UTC, 2-digits         |
-| `A`    | AM PM            |                                       |
-| `a`    | am pm            |                                       |
+| `A`    | AM/PM            | -                                     |
+| `a`    | am/pm            | -                                     |
 
-* More available formats `Q Do k kk X x ...` in plugin [`AdvancedFormat`](./Plugin.md#advancedformat)
+- More available formats `Q Do k kk X x ...` in plugin [`AdvancedFormat`](./Plugins.md#advanced-format)
 
-### Difference `.diff(compared: Carbonjs, unit: string (default: 'milliseconds'), float?: boolean)`
+### Difference
 
-Returns a `number` indicating the difference of two `Carbonjs`s in the specified unit.
+`.diff(compared: Carbon, unit: string (default: 'milliseconds'), float?: boolean)`
 
-```js
-const date1 = dayjs('2019-01-25');
-const date2 = dayjs('2018-06-05');
+Returns a `number` indicating the difference of two `Carbon`s in the specified unit.
+
+```javascript
+const date1 = Carbon.parse('2019-01-25');
+const date2 = Carbon.parse('2018-06-05');
 date1.diff(date2); // 20214000000
 date1.diff(date2, 'months'); // 7
 date1.diff(date2, 'months', true); // 7.645161290322581
 date1.diff(date2, 'days'); // 233
 ```
 
-### Unix Timestamp (milliseconds) `.valueOf()`
+### Unix Timestamp (milliseconds)
 
-Returns the `number` of milliseconds since the Unix Epoch for the `Carbonjs`.
+`.valueOf()`
 
-```js
-dayjs('2019-01-25').valueOf(); // 1548381600000
+Returns the `number` of milliseconds since the Unix Epoch for the `Carbon`.
+
+```javascript
+Carbon.parse('2019-01-25').valueOf(); // 1548381600000
 ```
 
-### Unix Timestamp (seconds) `.unix()`
+### Unix Timestamp (seconds)
 
-Returns the `number` of seconds since the Unix Epoch for the `Carbonjs`.
+`.unix()`
 
-```js
-dayjs('2019-01-25').unix(); // 1548381600
+Returns the `number` of seconds since the Unix Epoch for the `Carbon`.
+
+```javascript
+Carbon.parse('2019-01-25').unix(); // 1548381600
 ```
 
-### Days in the Month `.daysInMonth()`
+### Days in the Month
 
-Returns the `number` of days in the `Carbonjs`'s month.
+`.daysInMonth()`
 
-```js
-dayjs('2019-01-25').daysInMonth(); // 31
+Returns the `number` of days in the `Carbon`'s month.
+
+```javascript
+Carbon.parse('2019-01-25').daysInMonth(); // 31
 ```
 
-### As Javascript Date `.toDate()`
+### As Javascript Date
 
-Returns a copy of the native `Date` object parsed from the `Carbonjs` object.
+`.toDate()`
 
-```js
-dayjs('2019-01-25').toDate();
+Returns a copy of the native `Date` object parsed from the `Carbon` object.
+
+```javascript
+Carbon.parse('2019-01-25').toDate();
 ```
 
-### As Array `.toArray()`
+### As Array
+
+`.toArray()`
 
 Returns an `array` that mirrors the parameters from new Date().
 
-```js
-dayjs('2019-01-25').toArray(); // [ 2019, 0, 25, 0, 0, 0, 0 ]
+```javascript
+Carbon.parse('2019-01-25').toArray(); // [ 2019, 0, 25, 0, 0, 0, 0 ]
 ```
 
-### As JSON `.toJSON()`
+### As JSON
 
-Returns the `Carbonjs` formatted in an ISO8601 `string`.
+`.toJSON()`
 
-```js
-dayjs('2019-01-25').toJSON(); // '2019-01-25T02:00:00.000Z'
+Returns the `Carbon` formatted in an ISO8601 `string`.
+
+```javascript
+Carbon.parse('2019-01-25').toJSON(); // '2019-01-25T02:00:00.000Z'
 ```
 
-### As ISO 8601 String `.toISOString()`
+### As ISO 8601 String
 
-Returns the `Carbonjs` formatted in an ISO8601 `string`.
+`.toISOString()`
 
-```js
-dayjs('2019-01-25').toISOString(); // '2019-01-25T02:00:00.000Z'
+Returns the `Carbon` formatted in an ISO8601 `string`.
+
+```javascript
+Carbon.parse('2019-01-25').toISOString(); // '2019-01-25T02:00:00.000Z'
 ```
 
-### As Object `.toObject()`
+### As Object
+
+`.toObject()`
 
 Returns an `object` with the date's properties.
 
-```js
-dayjs('2019-01-25').toObject();
+```javascript
+Carbon.parse('2019-01-25').toObject();
 /* { years: 2019,
      months: 0,
      date: 25,
@@ -362,71 +459,107 @@ dayjs('2019-01-25').toObject();
      milliseconds: 0 } */
 ```
 
-### As String `.toString()`
+### As String
+
+`.toString()`
 
 Returns a `string` representation of the date.
 
-```js
-dayjs('2019-01-25').toString(); // 'Fri, 25 Jan 2019 02:00:00 GMT'
+```javascript
+Carbon.parse('2019-01-25').toString(); // 'Fri, 25 Jan 2019 02:00:00 GMT'
 ```
 
 ## Query
 
-### Is Before `.isBefore(compared: Carbonjs)`
+### Is Before
 
-Returns a `boolean` indicating whether the `Carbonjs`'s date is before the other supplied `Carbonjs`'s.
+`.isBefore(compared: Carbon)`
 
-```js
-dayjs().isBefore(dayjs()); // false
+Returns a `boolean` indicating whether the `Carbon`'s date is before the other supplied `Carbon`'s.
+
+```javascript
+Carbon.parse().isBefore(Carbon.parse()); // false
 ```
 
-### Is Same `.isSame(compared: Carbonjs)`
+### Is Same
 
-Returns a `boolean` indicating whether the `Carbonjs`'s date is the same as the other supplied `Carbonjs`'s.
+`.isSame(compared: Carbonjs)`
 
-```js
-dayjs().isSame(dayjs()); // true
+Returns a `boolean` indicating whether the `Carbon`'s date is the same as the other supplied `Carbon`'s.
+
+```javascript
+Carbon.parse().isSame(Carbon.parse()); // true
 ```
 
-### Is After `.isAfter(compared: Carbonjs)`
+### Is After
 
-Returns a `boolean` indicating whether the `Carbonjs`'s date is after the other supplied `Carbonjs`'s.
+`.isAfter(compared: Carbonjs)`
 
-```js
-dayjs().isAfter(dayjs()); // false
+Returns a `boolean` indicating whether the `Carbon`'s date is after the other supplied `Carbon`'s.
+
+```javascript
+Carbon.parse().isAfter(Carbon.parse()); // false
 ```
 
-### Is a Carbonjs `.isDayjs(compared: any)`
+### Is a Carbonjs
 
-Returns a `boolean` indicating whether a variable is a dayjs object or not.
+`.isCarbon(compared: any)`
 
-```js
-dayjs.isDayjs(dayjs()); // true
-dayjs.isDayjs(new Date()); // false
+Returns a `boolean` indicating whether a variable is a `Carbon` object or not.
+
+```javascript
+Carbon.isCarbon(Carbon.parse()); // true
+Carbon.isCarbon(new Date()); // false
 ```
+
+## Internationalization
+
+Carbon.js has great support for internationalization. see the docs [here](./I18n.md)
 
 ## Plugin APIs
 
-### RelativeTime
+Any plugin will be loaded only once
 
-`.from` `.to` `.fromNow` `.toNow` to get relative time
+### Day of Year
 
-plugin [`RelativeTime`](./Plugin.md#relativetime)
+`.dayOfYear` to get day of the year
 
-### IsLeapYear
+plugin [`DayOfYear`](./Plugins.md#day-of-year)
 
-`.isLeapYear` to get is a leap year or not
-
-plugin [`IsLeapYear`](./Plugin.md#isleapyear)
-
-### WeekOfYear
-
-`.week` to get week of the year
-
-plugin [`WeekOfYear`](./Plugin.md#weekofyear)
-
-### IsBetween
+### Is Between
 
 `.isBetween` to check if a date is between two other dates
 
-plugin [`IsBetween`](./Plugin.md#isbetween)
+plugin [`IsBetween`](./Plugins.md#is-between)
+
+### Leap Year
+
+`.isLeapYear` to get is a leap year or not
+
+plugin [`LeapYear`](./Plugins.md#leap-year)
+
+### Relative Time
+
+`.from` `.to` `.fromNow` `.toNow` to get relative time
+
+plugin [`RelativeTime`](./Plugins.md#relative-time)
+
+### Week of Year
+
+`.weekOfYear` to get week of the year
+
+plugin [`WeekOfYear`](./Plugins.md#week-of-year)
+
+## Calendars API (used as plugin)
+
+### Islamic Calendar
+
+To parse, manipulate and format islamic calendar dates
+
+plugin [`IslamicCalendar`](./Calendars.md#islamic)
+
+### Jalaali Calendar
+
+To parse, manipulate and format jalaali (persian) calendar dates
+
+plugin [`JalaaliCalendar`](./Calendars.md#jalaali)

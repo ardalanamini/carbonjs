@@ -103,15 +103,14 @@ describe("jalaali-calendar", () => {
   });
 
   test("get jalaali week", () => {
-    expect(Carbon.parse().week()).toBe(moment().week());
-    expect(Carbon.parse().week("jalaali")).toBe(moment().jWeek());
+    expect(Carbon.parse().weekOfYear()).toBe(moment().week());
 
     const date = "1981-08-17";
 
-    expect(Carbon.parse(date).week()).toBe(moment(date).week());
-    expect(Carbon.parse(date).week("jalaali")).toBe(22);
-    expect(Carbon.parse(date).startOf("jYear").week("jalaali")).toBe(1);
-    expect(Carbon.parse(date).startOf("jYear").set("jDay", 8).week("jalaali")).toBe(2);
+    expect(Carbon.parse(date).weekOfYear()).toBe(moment(date).week());
+    expect(Carbon.parse(date).weekOfYear("jalaali")).toBe(22);
+    expect(Carbon.parse(date).startOf("jYear").weekOfYear("jalaali")).toBe(1);
+    expect(Carbon.parse(date).startOf("jYear").set("jDay", 8).weekOfYear("jalaali")).toBe(2);
   });
 
   test("get jalaali day", () => {

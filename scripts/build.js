@@ -13,7 +13,7 @@ const startTime = new Date().getTime();
 
 console.log("building...");
 
-const DIR = path.resolve(__dirname, "..", "dist");
+const DIR = path.resolve(__dirname, "..", "lib");
 
 rimraf.sync(DIR);
 

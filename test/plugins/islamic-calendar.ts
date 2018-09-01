@@ -75,15 +75,15 @@ describe("islamic-calendar", () => {
 
     date = "1397-08-01";
 
-    expect(Carbon.parse(date, "iYYYY-MM-iDD").format(FORMAT)).toBe("1977-08-13");
+    expect(Carbon.parse(date, "iYYYY-MM-iDD").format(FORMAT)).toBe("1977-08-14");
 
     date = "1397-Aug-01";
 
-    expect(Carbon.parse(date, "iYYYY-MMM-iDD").format(FORMAT)).toBe("1977-08-13");
+    expect(Carbon.parse(date, "iYYYY-MMM-iDD").format(FORMAT)).toBe("1977-08-14");
 
     date = "1397-August-01";
 
-    expect(Carbon.parse(date, "iYYYY-MMMM-iDD").format(FORMAT)).toBe("1977-08-13");
+    expect(Carbon.parse(date, "iYYYY-MMMM-iDD").format(FORMAT)).toBe("1977-08-14");
 
     date = "1397-01";
 
@@ -110,18 +110,17 @@ describe("islamic-calendar", () => {
   });
 
   test("get islamic week", () => {
-    expect(Carbon.parse().week()).toBe(moment().week());
-    expect(Carbon.parse().week("islamic")).toBe(moment().iWeek());
+    expect(Carbon.parse().weekOfYear()).toBe(moment().week());
 
-    expect(Carbon.parse("1980-05-17").week("islamic")).toBe(27);
+    expect(Carbon.parse("1980-05-17").weekOfYear("islamic")).toBe(27);
 
     const date = "1981-08-17";
 
-    expect(Carbon.parse(date).week()).toBe(moment(date).week());
-    expect(Carbon.parse(date).week("islamic")).toBe(41);
-    expect(Carbon.parse(date).endOf("iMonth").week("islamic")).toBe(43);
-    expect(Carbon.parse(date).startOf("iYear").week("islamic")).toBe(1);
-    expect(Carbon.parse(date).endOf("iYear").set("iDay", 8).week("islamic")).toBe(48);
+    expect(Carbon.parse(date).weekOfYear()).toBe(moment(date).week());
+    expect(Carbon.parse(date).weekOfYear("islamic")).toBe(41);
+    expect(Carbon.parse(date).endOf("iMonth").weekOfYear("islamic")).toBe(43);
+    expect(Carbon.parse(date).startOf("iYear").weekOfYear("islamic")).toBe(1);
+    expect(Carbon.parse(date).endOf("iYear").set("iDay", 8).weekOfYear("islamic")).toBe(48);
 
   });
 

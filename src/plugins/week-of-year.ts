@@ -1,10 +1,10 @@
 import { YEAR, DAY, WEEK, MILLISECOND } from "../constants";
 import * as Carbon from "../index";
 
-module week { }
+module weekOfYear { }
 
-const week: Carbon.Plugin = (Base) => {
-  Base.prototype.week = function (this: Carbon) {
+const weekOfYear: Carbon.Plugin = (Base) => {
+  Base.prototype.weekOfYear = function (this: Carbon) {
     const endOfYear = this.endOf(YEAR);
 
     if (endOfYear.weekday() !== 6 && this._month === 11 && (31 - this._day) <= endOfYear.weekday())
@@ -24,4 +24,4 @@ const week: Carbon.Plugin = (Base) => {
   };
 };
 
-export = week;
+export = weekOfYear;

@@ -44,6 +44,7 @@ Typescript ready date library alternative to Moment.js
 - :fire: Chainable
 - :globe_with_meridians: I18n support
 - :gear: Plugin support
+- :gear: Calendar support (as part of plugin support)
 
 ## Getting Started
 
@@ -59,16 +60,16 @@ npm i -s carbonjs
 
 It's easy to use Carbon.js APIs to parse, validate, manipulate, and display dates and times.
 
-```typescript
+```javascript
 import * as Carbon from "carbonjs";
 
 Carbon.parse("2018-08-08"); // parse
 
-Carbon.parse().format("{YYYY} MM-DDTHH:mm:ss SSS [Z] A"); // display
+new Carbon().format("{YYYY} MM-DDTHH:mm:ss SSS [Z] A"); // display
 
 Carbon.parse().set("month", 3).month(); // get & set
 
-Carbon.parse().add(1, "year"); // manipulate
+new Carbon().add(1, "year"); // manipulate
 
 Carbon.parse().isBefore(Carbon.parse()); // query
 ```
@@ -79,8 +80,8 @@ Day.js has great support for internationalization.
 
 But none of them will be included in your build unless you use it.
 
-```typescript
-import "carbonjs/dist/locales/es"; // load locale package on demand
+```javascript
+import "carbonjs/lib/locales/es"; // load locale package on demand
 
 Carbon.locale("es"); // use Spanish locale globally
 
@@ -91,8 +92,8 @@ Carbon.parse("2018-05-05").locale("zh-cn").format(); // use Chinese Simplified l
 
 A plugin is an independent module that can be added to Day.js to extend functionality or add new features.
 
-```typescript
-import * as advancedFormat from 'carbonjs/dist/plugins/advancedFormat' // load on demand
+```javascript
+import * as advancedFormat from 'carbonjs/lib/plugins/advancedFormat' // load on demand
 
 Carbon.extend(advancedFormat) // use plugin
 
