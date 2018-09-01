@@ -105,6 +105,8 @@ Current calendar algorithms are based on [Formilab's Calendar Converter](https:/
 
 ### Islamic
 
+`carbonjs/lib/plugins/islamic-calendar`
+
 Islamic (Hijri) Calendar is the lunar calendar used by Muslims everywhere to determine the proper days on which to observe the annual fasting, to attend Hajj, and to celebrate other Islamic holidays and festivals.
 
 #### Parse/Format
@@ -151,6 +153,8 @@ List of extended edge units
 | `iYear`  | `iY`      | Year        |
 
 ### Jalaali
+
+`carbonjs/lib/plugins/jalaali-calendar`
 
 Jalaali calendar is a solar calendar that was used in Persia, variants of which today are still in use in Iran as well as Afghanistan.
 
