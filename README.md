@@ -100,7 +100,7 @@ Carbon.extend(advancedFormat) // use plugin
 Carbon.parse().format('Q Do k kk X x') // more available formats
 ```
 
-:books:[Full API Reference](https://ardalanamini.github.io/carbonjs)
+:books:[Full API Reference](https://carbon.js.org)
 
 ## Versioning
 
